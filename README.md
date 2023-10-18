@@ -1,7 +1,7 @@
 
 # IFE VR Robot
 ## Project
-Control an UR robot with Virtual Reality for IFE.
+Control an UR robot with Virtual Reality for IFE.<br>
 You can use virtual reality to control a robot arm and rotate a camera as your head moves.
 +++++++++
 ## Hardware
@@ -12,11 +12,12 @@ You can use virtual reality to control a robot arm and rotate a camera as your h
 - 2 VR controllers (We may only need 1, this can change)
 - 4 VR base stations
 ## Plugins for Unity
-- SteamVR
+- SteamVR<br>
 Code can be found under Unity
 ## Libraries for Raspberry pi
 - opencv-python
-- +++ Add more TOOOR
+- +++ Add more TOOOR<br>
+Code can be found under raspberry
 
 
 ## Finished
