@@ -3,7 +3,7 @@ using UnityEngine;
 public class cameraAngle : MonoBehaviour
 {
     private Vector3 previousRotation;
-    private const float rotationThreshold = 20f;
+    private const float rotationThreshold = 5f;
     public socket socketClient;
 
     private void Start()
@@ -16,8 +16,9 @@ public class cameraAngle : MonoBehaviour
     {
         Vector3 currentRotation = transform.rotation.eulerAngles;
 
-        float deltaYaw = currentRotation.y - previousRotation.y;
-        float deltaPitch = currentRotation.x - previousRotation.x;
+        int deltaYaw = (int) (currentRotation.y - previousRotation.y);
+        int deltaPitch = (int) (currentRotation.x - previousRotation.x);
+        int deltaRoll = (int) (currentRotation.z - previousRotation.z);
 
         if (deltaYaw < -180) deltaYaw += 360;
         if (deltaYaw > 180) deltaYaw -= 360;
@@ -25,16 +26,25 @@ public class cameraAngle : MonoBehaviour
         if (deltaPitch < -180) deltaPitch += 360;
         if (deltaPitch > 180) deltaPitch -= 360;
 
+        if (deltaRoll < -180) deltaRoll += 360;
+        if (deltaRoll > 180) deltaRoll -= 360;
+
         if (Mathf.Abs(deltaYaw) >= rotationThreshold)
-        {
-            Debug.Log($"Yaw{deltaYaw}");
-            socketClient.SendMessageToServer($"Yaw {deltaYaw}");
+        { 
+            Debug.Log($"camera yaw {deltaYaw} deg");
+            socketClient.SendMessageToServer($"camera yaw {deltaYaw} deg");
             previousRotation = currentRotation;
         }
         if (Mathf.Abs(deltaPitch) >= rotationThreshold)
         {
-            Debug.Log($"Pitch: {deltaPitch}");
-            socketClient.SendMessageToServer($"Pitch {deltaPitch}");
+            Debug.Log($"camera pitch {deltaPitch} deg");
+            socketClient.SendMessageToServer($"camera pitch {deltaPitch} deg");
+            previousRotation = currentRotation;
+        }
+        if (Mathf.Abs(deltaRoll) >= rotationThreshold)
+        {
+            Debug.Log($"camera roll {deltaRoll} deg");
+            socketClient.SendMessageToServer($"camera roll {deltaRoll} deg");
             previousRotation = currentRotation;
         }
         
