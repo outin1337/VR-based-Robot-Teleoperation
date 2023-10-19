@@ -4,7 +4,7 @@ using System.Text;
 
 public class socket : MonoBehaviour
 {
-    private const string serverIP = "158.39.162.172"; // IP of the server (use "127.0.0.1" for localhost)
+    private const string serverIP = "158.39.191.143"; // IP of the server (use "127.0.0.1" for localhost)
     private const int serverPort = 8080; // Port of the server
     private const bool enable = true;
 
@@ -12,37 +12,38 @@ public class socket : MonoBehaviour
 
     void Start()
     {
-        if (enable) { 
-        clientSocket = new TcpClient();
-
-        // Try to connect to the server
-        try
+        if (enable)
         {
-            clientSocket.Connect(serverIP, serverPort);
-            Debug.Log("Connected to the server.");
+            clientSocket = new TcpClient();
 
-            // Example: Send a message to the server after connecting
-            SendMessageToServer("Hello, server, This is Unity Speaking you f");
-        }
-        catch (SocketException ex)
-        {
-            Debug.LogError("SocketException: " + ex.ToString());
-        }
-    };
-}
+            // Try to connect to the server
+            try
+            {
+                clientSocket.Connect(serverIP, serverPort);
+                Debug.Log("Connected to the server.");
+
+                // Example: Send a message to the server after connecting
+                SendMessageToServer("Hello, server, This is Unity Speaking you f");
+            }
+            catch (SocketException ex)
+            {
+                Debug.LogError("SocketException: " + ex.ToString());
+            }
+        };
+    }
 
     public void SendMessageToServer(string message)
+    {
+        if (clientSocket == null || !clientSocket.Connected)
         {
-            if (clientSocket == null || !clientSocket.Connected)
-            {
-                Debug.LogWarning("Not connected to the server.");
-                return;
-            }
+            Debug.LogWarning("Not connected to the server.");
+            return;
+        }
 
-            // Convert the message string to byte array and send
-            byte[] data = Encoding.ASCII.GetBytes(message);
-            clientSocket.GetStream().Write(data, 0, data.Length);
-        
+        // Convert the message string to byte array and send
+        byte[] data = Encoding.ASCII.GetBytes(message);
+        clientSocket.GetStream().Write(data, 0, data.Length);
+
     }
 
     private void OnDestroy()
