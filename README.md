@@ -13,7 +13,7 @@ You can use virtual reality to control a robot arm and rotate a camera as your h
 - 4 VR base stations
 ## Plugins for Unity
 - SteamVR
-- MJPEG stream decoder by lightfromshadows <a href="https://gist.github.com/lightfromshadows/79029ca480393270009173abc7cad858" target="_blank">Link</a>
+- MJPEG stream decoder by <a href="https://gist.github.com/lightfromshadows/79029ca480393270009173abc7cad858" target="_blank">lightfromshadows</a>
 ## Libraries for Raspberry pi
 - python3-opencv
 - Eventlit
