@@ -1,5 +1,5 @@
-update and upgrade apt
-
+# update and upgrade apt
+## Install 
 1. 
 sudo apt install autoconf automake build-essential pkgconf libtool git libzip-dev libjpeg-dev gettext libmicrohttpd-dev libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev default-libmysqlclient-dev libpq-dev libsqlite3-dev libwebp-dev
 
@@ -9,8 +9,8 @@ sudo wget https://github.com/Motion-Project/motion/releases/download/release-4.5
 
 sudo dpkg -i $(lsb_release -cs)_motion_4.5.1-1_$(dpkg --print-architecture).deb
 
-3.
-How to run
+
+## How to run
 
 sudo motion -c /etc/motion/camera1.conf
 sudo motion -c /etc/motion/camera2.conf
