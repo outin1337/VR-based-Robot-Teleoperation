@@ -15,9 +15,8 @@ You can use virtual reality to control a robot arm and rotate a camera as your h
 - SteamVR
 - MJPEG stream decoder by <a href="https://gist.github.com/lightfromshadows/79029ca480393270009173abc7cad858" target="_blank">lightfromshadows</a>
 ## Libraries for Raspberry pi
-- python3-opencv
-- Eventlit
-- Flask
+- <a href="https://github.com/Motion-Project/motion/" target="_blank">Motion</a>
+- ADD for Motor controls
 
 ## Finished
 - Get head rotation from VR headset
