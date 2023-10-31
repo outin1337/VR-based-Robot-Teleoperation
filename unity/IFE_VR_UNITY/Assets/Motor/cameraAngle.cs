@@ -6,6 +6,8 @@ public class cameraAngle : MonoBehaviour
     private const float rotationThreshold = 5f;
     public socket socketClient;
 
+    private int deltaYaw, deltaPitch, deltaRoll;
+
     private void Start()
     {
         socketClient = GetComponent<socket>();
@@ -16,9 +18,9 @@ public class cameraAngle : MonoBehaviour
     {
         Vector3 currentRotation = transform.rotation.eulerAngles;
 
-        int deltaYaw = (int) (currentRotation.y - previousRotation.y);
-        int deltaPitch = (int) (currentRotation.x - previousRotation.x);
-        int deltaRoll = (int) (currentRotation.z - previousRotation.z);
+        deltaYaw = (int) (currentRotation.y - previousRotation.y);
+        deltaPitch = (int) (currentRotation.x - previousRotation.x);
+        deltaRoll = (int) (currentRotation.z - previousRotation.z);
 
         if (deltaYaw < -180) deltaYaw += 360;
         if (deltaYaw > 180) deltaYaw -= 360;
