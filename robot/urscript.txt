@@ -1,0 +1,17 @@
+# Define server details
+HOST = "192.168.56.1"
+PORT = 30002
+
+# Open a socket (non-blocking mode)
+socket_open(HOST, PORT)
+  
+# Send a simple message
+message = "Hello Unity Server from UR!"
+socket_send_string(message)
+  
+# Close the connection (after some delay for demonstration purposes)
+sleep(2)
+socket_close()
+  
+# End the program
+end
