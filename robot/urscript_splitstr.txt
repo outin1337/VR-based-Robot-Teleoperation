@@ -1,0 +1,20 @@
+def str_split(string):
+  array = [0, 0, 0]
+  index = 0
+  a = 0
+  word = ""
+  while a < str_len(string):
+    if str_at(string, a) == ",":
+      array[index] = to_num(word)
+      index = index + 1
+      word = ""
+    else:
+      word = str_cat(word, str_at(string, a))
+    end
+    a = a + 1
+  end
+  array[index] = to_num(word)  # to handle the last word in the string
+  return array
+end
+
+

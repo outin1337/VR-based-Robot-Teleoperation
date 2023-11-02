@@ -2,61 +2,46 @@ using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Collections;
+using System.Globalization;
+
 
 public class Socket_robot_arm : MonoBehaviour
 {
     private IPAddress robotIP = IPAddress.Parse("192.168.56.1");
     private int port = 30002;
-
     private TcpListener tcpListener;
 
     void Start()
     {
         tcpListener = new TcpListener(robotIP, port);
         tcpListener.Start();
-        
-    }
-    void Update()
-    {
-        tcpListener.Start();
-        StartCoroutine(AcceptClient());
     }
 
-    IEnumerator AcceptClient()
+    void OnDestroy()
     {
-        while (true)
+        tcpListener.Stop();
+    }
+
+    public void SendMessageToClient(Vector3 vectorToSend)
+    {
+        if (tcpListener.Pending())
         {
-            if (tcpListener.Pending())
+            using (TcpClient tcpClient = tcpListener.AcceptTcpClient())
+            using (NetworkStream stream = tcpClient.GetStream())
             {
-                TcpClient tcpClient = tcpListener.AcceptTcpClient();
+
+
                 Debug.Log("Accepted new client");
-                StartCoroutine(HandleClient(tcpClient));
+                string messageToSend = string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2}", vectorToSend.x, vectorToSend.y, vectorToSend.z);
+
+                byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
+                stream.Write(messageBytes, 0, messageBytes.Length);
+                Debug.Log("Sent: " + messageToSend);
             }
-            yield return null;
         }
-    }
-
-    IEnumerator HandleClient(TcpClient tcpClient)
-    {
-        NetworkStream stream = tcpClient.GetStream();
-        byte[] buffer = new byte[1024];
-
-        while (tcpClient.Connected)
+        else
         {
-            if (stream.DataAvailable)
-            {
-                int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                if (bytesRead > 0)
-                {
-                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    Debug.Log("Received: " + message);
-                }
-            }
-            yield return null;
+            Debug.LogWarning("No client connection pending.");
         }
-
-        stream.Close();
-        tcpClient.Close();
     }
 }
