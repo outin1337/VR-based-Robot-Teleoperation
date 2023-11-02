@@ -4,32 +4,27 @@ using System.Text;
 
 public class socket : MonoBehaviour
 {
-    private const string serverIP = "158.39.191.143"; // IP of the server (use "127.0.0.1" for localhost)
-    private const int serverPort = 8080; // Port of the server
-    private const bool enable = false;
+    private const string serverIP = "158.39.162.177"; // IP of the server (use "127.0.0.1" for localhost)
+    private const int serverPort = 8084; // Port of the server
+
 
     private TcpClient clientSocket;
 
     void Start()
     {
-        if (enable)
+        clientSocket = new TcpClient();
+        // Try to connect to the server
+        try
         {
-            clientSocket = new TcpClient();
-
-            // Try to connect to the server
-            try
-            {
-                clientSocket.Connect(serverIP, serverPort);
-                Debug.Log("Connected to the server.");
-
-                // Example: Send a message to the server after connecting
-                SendMessageToServer("Hello, server, This is Unity Speaking you f");
-            }
-            catch (SocketException ex)
-            {
-                Debug.LogError("SocketException: " + ex.ToString());
-            }
-        };
+            clientSocket.Connect(serverIP, serverPort);
+            Debug.Log("Connected to the server.");
+            // Example: Send a message to the server after connecting
+            SendMessageToServer("Hello, server, This is Unity Speaking you f");
+        }
+        catch (SocketException ex)
+        {
+            Debug.LogError("SocketException: " + ex.ToString());
+        }
     }
 
     public void SendMessageToServer(string message)
