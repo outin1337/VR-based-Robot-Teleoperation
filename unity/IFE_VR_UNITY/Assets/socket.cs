@@ -4,8 +4,8 @@ using System.Text;
 
 public class socket : MonoBehaviour
 {
-    private const string serverIP = "158.39.162.177"; // IP of the server (use "127.0.0.1" for localhost)
-    private const int serverPort = 8084; // Port of the server
+    private const string serverIP = "158.39.162.164"; // IP of the server (use "127.0.0.1" for localhost)
+    private const int serverPort = 8080; // Port of the server
 
 
     private TcpClient clientSocket;
