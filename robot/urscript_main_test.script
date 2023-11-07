@@ -25,7 +25,7 @@
     tcp_pose[5] = tcp_pose[5] + data_split[5]
     if(get_inverse_kin_has_solution(tcp_pose)):
       movej(tcp_pose,a=1.4, v=1.05, t=0, r=0)
-      #movej(tcp_pose,a=1.4, v=0.25, t=0, r=0)
+      #movel(tcp_pose,a=1.4, v=0.25, t=0, r=0)
       textmsg(tcp_pose)
     end
     sleep(0.01)    
