@@ -1,18 +1,13 @@
-# Define server details
   HOST = "158.39.163.5"
   PORT = 30002
 
- 
-  
-  # Open a socket (non-blocking mode)
   socket_open(HOST, PORT, "Unity")
   
-  # Send a simple message
   message = "Hello Unity Server from UR!"
   socket_send_string(message, "Unity")
-  b = socket_read_string("Unity")
-  if (b) != "": 
-    c = str_split(b)
+  data = socket_read_string("Unity")
+  if(data): 
+    data_split = str_split(data)
     textmsg("X:")
     textmsg(c[0]) 
     textmsg("Y:")
@@ -20,19 +15,22 @@
     textmsg("Z:")
     textmsg(c[2])
     tcp_pose = get_target_tcp_pose()
-    tcp_pose[0] = tcp_pose[0] + c[0]
-    tcp_pose[1] = tcp_pose[1] + c[2]
-    tcp_pose[2] = tcp_pose[2] + c[1]
-    if get_inverse_kin_has_solution(tcp_pose):
+    # Displacement
+    tcp_pose[0] = tcp_pose[0] + data_split[0]
+    tcp_pose[1] = tcp_pose[1] + data_split[2]
+    tcp_pose[2] = tcp_pose[2] + data_split[1]
+    # Rotation
+    tcp_pose[3] = tcp_pose[3] + data_split[3]
+    tcp_pose[4] = tcp_pose[4] + data_split[4]
+    tcp_pose[5] = tcp_pose[5] + data_split[5]
+    if(get_inverse_kin_has_solution(tcp_pose)):
       movej(tcp_pose,a=1.4, v=1.05, t=0, r=0)
+      #movej(tcp_pose,a=1.4, v=0.25, t=0, r=0)
       textmsg(tcp_pose)
     end
     sleep(0.01)    
   end
-  # Close the connection (after some delay for demonstration purposes)
-  #sleep(0.2)
   socket_close("Unity")
-  
-  # End the program
+
 end
 
