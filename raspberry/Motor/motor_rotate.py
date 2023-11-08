@@ -3,39 +3,38 @@ from time import sleep
 import socket
 
 # Set up GPIO
-#GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BOARD)
 
 # Pin definitions
-X_STEP = 29  # GPIO5
-X_DIR = 31   # GPIO6
+X_STEP = 29
+X_DIR = 31
 Y_STEP = 33
 Y_DIR = 35
 Z_STEP = 11
 Z_DIR = 13
 
 # Initialize pins
-#motor_pins = [X_STEP, X_DIR, Y_STEP, Y_DIR, Z_STEP, Z_DIR]
-#for pin in motor_pins:
-#    GPIO.setup(pin, GPIO.OUT)
-#    GPIO.output(pin, GPIO.LOW)
+motor_pins = [X_STEP, X_DIR, Y_STEP, Y_DIR, Z_STEP, Z_DIR]
+for pin in motor_pins:
+    GPIO.setup(pin, GPIO.OUT)
+    GPIO.output(pin, GPIO.LOW)
 
 
 
 # Function to rotate motor
-def rotate_motor(step_pin, dir_pin, degrees, delay=0.005):
-    steps = int(degrees * (250 / 360))  # Assuming 200 steps per revolution
+def rotate_motor(step_pin, dir_pin, degrees, delay=0.0025):
+    steps = int(degrees * (200 / 360))  # Assuming 200 steps per revolution
     GPIO.output(dir_pin, GPIO.HIGH if degrees >= 0 else GPIO.LOW)
     for _ in range(abs(steps)):
         GPIO.output(step_pin, GPIO.HIGH)
         sleep(delay)
         GPIO.output(step_pin, GPIO.LOW)
-        sleep(delay)
 
 
 
 # Initialize TCP Socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('158.39.162.185', 8080))
+server_socket.bind(('158.39.162.184', 8083))
 server_socket.listen(5)
 print("Server is listening for incoming connections...")
 
@@ -47,21 +46,21 @@ while True:
     while True:
         data = client_socket.recv(1024).decode('utf-8')
         if not data:
-            break
+           break
         
         print(f"{data}")
 
-        split_data = data.split(" ")
+        split_data = data.replace(",",".").split(" ")
         if split_data[0] == 'camera':  # Validating the string
             if split_data[1] == 'yaw':
-                yaw_deg = int(split_data[2])
-                #rotate_motor(X_STEP, X_DIR, yaw_deg)
+                yaw_deg = float(split_data[2])
+                rotate_motor(Z_STEP, Z_DIR, yaw_deg)
             elif split_data[1] == 'pitch':
-                pitch_deg = int(split_data[2])
-                #rotate_motor(Y_STEP, Y_DIR, pitch_deg)
+                pitch_deg = float(split_data[2])
+                rotate_motor(Y_STEP, Y_DIR, pitch_deg)
             elif split_data[1] == 'roll':
-                roll_deg = int(split_data[2])
-                #rotate_motor(Z_STEP, Z_DIR, roll_deg)
+                roll_deg = float(split_data[2])
+                rotate_motor(X_STEP, X_DIR, roll_deg)
             
 
 
