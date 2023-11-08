@@ -6,11 +6,11 @@ import socket
 GPIO.setmode(GPIO.BOARD)
 
 # Pin definitions
-X_STEP = 29
-X_DIR = 31
-Y_STEP = 33
-Y_DIR = 35
-Z_STEP = 11
+X_STEP = 33
+X_DIR = 35
+Y_STEP = 29
+Y_DIR = 31
+Z_STEP = 11 
 Z_DIR = 13
 
 # Initialize pins
@@ -51,10 +51,11 @@ while True:
         print(f"{data}")
 
         split_data = data.replace(",",".").split(" ")
+        #split_data = data.split(" ")
         if split_data[0] == 'camera':  # Validating the string
             if split_data[1] == 'yaw':
                 yaw_deg = float(split_data[2])
-                rotate_motor(Z_STEP, Z_DIR, yaw_deg)
+                #rotate_motor(Z_STEP, Z_DIR, yaw_deg)
             elif split_data[1] == 'pitch':
                 pitch_deg = float(split_data[2])
                 rotate_motor(Y_STEP, Y_DIR, pitch_deg)
