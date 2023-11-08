@@ -6,7 +6,7 @@ public class Posistion_UR : MonoBehaviour
     public SteamVR_Input_Sources handType; // Set this to LeftHand or RightHand in the inspector
 
     private SteamVR_Behaviour_Pose controllerPose;
-    private double treshold_pos = 0.2;
+    private double treshold_pos = 0.05;
     private double treshold_ang = 90;
 
     private Vector3 currentControllerPosition;
