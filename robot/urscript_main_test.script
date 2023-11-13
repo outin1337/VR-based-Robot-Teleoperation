@@ -6,31 +6,32 @@
   message = "Hello Unity Server from UR!"
   socket_send_string(message, "Unity")
   data = socket_read_string("Unity")
-  if(data): 
+  if(data != ""):
     data_split = str_split(data)
     textmsg("X:")
-    textmsg(c[0]) 
+    textmsg(data_split[0]) 
     textmsg("Y:")
-    textmsg(c[1])
+    textmsg(data_split[1])
     textmsg("Z:")
-    textmsg(c[2])
+    textmsg(data_split[2])
     tcp_pose = get_target_tcp_pose()
     # Displacement
     tcp_pose[0] = tcp_pose[0] + data_split[0]
     tcp_pose[1] = tcp_pose[1] + data_split[2]
     tcp_pose[2] = tcp_pose[2] + data_split[1]
     # Rotation
-    tcp_pose[3] = tcp_pose[3] + data_split[3]
-    tcp_pose[4] = tcp_pose[4] + data_split[4]
-    tcp_pose[5] = tcp_pose[5] + data_split[5]
-    if(get_inverse_kin_has_solution(tcp_pose)):
-      movej(tcp_pose,a=1.4, v=1.05, t=0, r=0)
+    #tcp_pose[3] = tcp_pose[3] + data_split[3]
+    #tcp_pose[4] = tcp_pose[4] + data_split[4]
+    #tcp_pose[5] = tcp_pose[5] + data_split[5]
+    textmsg(tcp_pose)
+    if(get_inverse_kin_has_solution(tcp_pose) and tcp_pose[2] > -0.25):
+      movej(tcp_pose,a=5, v=5, t=0, r=0)
       #movel(tcp_pose,a=1.4, v=0.25, t=0, r=0)
-      textmsg(tcp_pose)
-    end
+    else:
+      textmsg("No solution found")
+  end
     sleep(0.01)    
   end
   socket_close("Unity")
 
 end
-

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Valve.VR;
 
 public class ControllerPos : MonoBehaviour
 {
@@ -18,6 +19,11 @@ public class ControllerPos : MonoBehaviour
     }
 
     private void Update()
+    {
+        rotate();
+    }
+
+    private void rotate()
     {
         Vector3 currentRotation = transform.rotation.eulerAngles;
 
@@ -53,4 +59,5 @@ public class ControllerPos : MonoBehaviour
             previousRotation = currentRotation;
         }
     }
+
 }

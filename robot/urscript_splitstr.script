@@ -1,7 +1,7 @@
 def str_split(string):
   array = [0, 0, 0]
   index = 0
-  a = 0
+  a = 2
   word = ""
   while a < str_len(string):
     if str_at(string, a) == ",":
