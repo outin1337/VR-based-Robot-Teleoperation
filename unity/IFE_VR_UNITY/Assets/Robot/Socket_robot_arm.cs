@@ -8,7 +8,7 @@ using System.Globalization;
 public class Socket_robot_arm : MonoBehaviour
 {
     private IPAddress robotIP = IPAddress.Parse("158.39.163.5");
-    private int port = 5005;
+    private int port = 30002;
     private TcpListener tcpListener;
 
     void Start()
@@ -22,6 +22,11 @@ public class Socket_robot_arm : MonoBehaviour
         tcpListener.Stop();
     }
 
+    public bool clientPending()
+    {
+        return tcpListener.Pending();
+    }
+
     public void SendMessageToClient(Vector3 vectorToSend)
     {
         if (tcpListener.Pending())
@@ -32,8 +37,7 @@ public class Socket_robot_arm : MonoBehaviour
 
 
                 Debug.Log("Accepted new client");
-                string messageToSend = string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2}", vectorToSend.x, vectorToSend.y, vectorToSend.z);
-
+                string messageToSend = string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}", "r", vectorToSend.x, vectorToSend.y, vectorToSend.z);
                 byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
                 stream.Write(messageBytes, 0, messageBytes.Length);
                 Debug.Log("Sent: " + messageToSend);

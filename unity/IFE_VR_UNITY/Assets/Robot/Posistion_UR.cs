@@ -11,13 +11,16 @@ public class Posistion_UR : MonoBehaviour
 
     private Vector3 currentControllerPosition;
     private Vector3 previousControllerPosition;
-    public Vector3 deltaControllerPosition;
+    private Vector3 deltaControllerPosition;
 
     private Vector3 currentControllerRotation;
     private Vector3 previousControllerRotation;
     private Vector3 deltaControllerRotation;
+    private Vector3 unsentDeltaControllerPosition;
 
     public Socket_robot_arm msgClient;
+
+    public SteamVR_Action_Boolean grabPinchAction;
 
     
 
@@ -39,6 +42,14 @@ public class Posistion_UR : MonoBehaviour
 
     void Update()
     {
+        if (grabPinchAction.GetState(handType))
+        {
+            rotate();
+        }
+    }
+
+    private void rotate()
+    {
         if (controllerPose == null)
             return;
 
@@ -52,7 +63,19 @@ public class Posistion_UR : MonoBehaviour
         if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold 
         {
             Debug.Log("Difference position: " + deltaControllerPosition);
-            msgClient.SendMessageToClient(deltaControllerPosition);
+            if (msgClient.clientPending())
+            {
+                deltaControllerPosition += unsentDeltaControllerPosition;
+                msgClient.SendMessageToClient(deltaControllerPosition);
+                unsentDeltaControllerPosition.x = 0;
+                unsentDeltaControllerPosition.y = 0;
+                unsentDeltaControllerPosition.z = 0;
+            }
+            else
+            {
+
+                unsentDeltaControllerPosition += deltaControllerPosition;
+            }
             //Debug.Log("Controller Position: " + currentControllerPosition);
             previousControllerPosition = currentControllerPosition;
         }
