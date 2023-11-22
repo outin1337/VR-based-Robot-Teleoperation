@@ -590,7 +590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 213a7b26f02aede429f995f2070a6fc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tryOnStart: 1
+  tryOnStart: 0
   defaultStreamURL: http://158.39.162.184:8082/
   renderTexture: {fileID: 8400000, guid: cb47c6d6d5ae6e04485c1609d9705cf8, type: 2}
 --- !u!1 &1154349082
@@ -714,7 +714,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1361636005}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aba19a22a5d126c449fea4274d181dd4, type: 3}
   m_Name: 
@@ -1047,7 +1047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 213a7b26f02aede429f995f2070a6fc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tryOnStart: 1
+  tryOnStart: 0
   defaultStreamURL: http://158.39.162.184:8081/
   renderTexture: {fileID: 8400000, guid: f5b28a95a7a2ea74594719bb5f22b86e, type: 2}
 --- !u!21 &2059070136

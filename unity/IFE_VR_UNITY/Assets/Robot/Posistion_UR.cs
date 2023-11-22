@@ -6,7 +6,7 @@ public class Posistion_UR : MonoBehaviour
     public SteamVR_Input_Sources handType; // Set this to LeftHand or RightHand in the inspector
 
     private SteamVR_Behaviour_Pose controllerPose;
-    private double treshold_pos = 0.05;
+    private double treshold_pos = 0.01;
     private double treshold_ang = 90;
 
     private Vector3 currentControllerPosition;
@@ -27,7 +27,7 @@ public class Posistion_UR : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        msgClient = GetComponent<Socket_robot_arm>();
+        //msgClient = GetComponent<Socket_robot_arm>();
 
 
         if (controllerPose == null)
@@ -60,7 +60,7 @@ public class Posistion_UR : MonoBehaviour
         deltaControllerRotation = AngleDifference(previousControllerRotation, currentControllerRotation);
 
 
-        if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold 
+        if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er stÃ¸rre en treshhold 
         {
             Debug.Log("Difference position: " + deltaControllerPosition);
             if (msgClient.clientPending())
@@ -80,7 +80,7 @@ public class Posistion_UR : MonoBehaviour
             previousControllerPosition = currentControllerPosition;
         }
 
-        /*if (Mathf.Abs(deltaControllerRotation.x) > treshold_ang || Mathf.Abs(deltaControllerRotation.y) > treshold_ang || Mathf.Abs(deltaControllerRotation.z) > treshold_ang) //Sjekker om rotasjonen er større en treshhold 
+        /*if (Mathf.Abs(deltaControllerRotation.x) > treshold_ang || Mathf.Abs(deltaControllerRotation.y) > treshold_ang || Mathf.Abs(deltaControllerRotation.z) > treshold_ang) //Sjekker om rotasjonen er stï¿½rre en treshhold 
         {
             Debug.Log("Difference rotation: " + deltaControllerRotation);
             Debug.Log("Controller rotation: " + currentControllerRotation);

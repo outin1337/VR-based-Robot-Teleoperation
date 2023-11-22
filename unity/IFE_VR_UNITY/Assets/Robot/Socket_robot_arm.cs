@@ -7,7 +7,7 @@ using System.Globalization;
 
 public class Socket_robot_arm : MonoBehaviour
 {
-    private IPAddress robotIP = IPAddress.Parse("158.39.163.5");
+    private IPAddress robotIP = IPAddress.Parse("158.39.163.7");
     private int port = 30002;
     private TcpListener tcpListener;
 
