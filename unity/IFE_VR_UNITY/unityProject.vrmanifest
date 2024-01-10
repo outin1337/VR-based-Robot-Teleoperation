@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.myproject.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\Users\\didars\\Documents\\IFE-VR-Robot\\unity\\IFE_VR_UNITY\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\fredrida\\Documents\\IFE-VR-Robot\\unity\\IFE_VR_UNITY\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "My project [Testing]"

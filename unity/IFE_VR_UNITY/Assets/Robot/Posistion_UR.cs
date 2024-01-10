@@ -1,6 +1,7 @@
 using UnityEngine;
 using Valve.VR;
 
+
 public class Posistion_UR : MonoBehaviour
 {
     public SteamVR_Input_Sources handType; // Set this to LeftHand or RightHand in the inspector
@@ -18,7 +19,7 @@ public class Posistion_UR : MonoBehaviour
     private Vector3 deltaControllerRotation;
     private Vector3 unsentDeltaControllerPosition;
 
-    public Socket_robot_arm msgClient;
+    public Socket_robot_arm networkManager;
 
     public SteamVR_Action_Boolean grabPinchAction;
 
@@ -27,8 +28,8 @@ public class Posistion_UR : MonoBehaviour
     void Start()
     {
         controllerPose = GetComponent<SteamVR_Behaviour_Pose>();
-        //msgClient = GetComponent<Socket_robot_arm>();
-
+        networkManager = new Socket_robot_arm();
+        networkManager.StartListenerAsync();
 
         if (controllerPose == null)
         {
@@ -63,10 +64,10 @@ public class Posistion_UR : MonoBehaviour
         if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold 
         {
             Debug.Log("Difference position: " + deltaControllerPosition);
-            if (msgClient.clientPending())
+            if (networkManager.clientPending())
             {
                 deltaControllerPosition += unsentDeltaControllerPosition;
-                msgClient.SendMessageToClient(deltaControllerPosition);
+                networkManager.SendMessageToClient(deltaControllerPosition);
                 unsentDeltaControllerPosition.x = 0;
                 unsentDeltaControllerPosition.y = 0;
                 unsentDeltaControllerPosition.z = 0;

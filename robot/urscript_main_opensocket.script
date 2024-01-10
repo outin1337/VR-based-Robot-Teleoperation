@@ -1,0 +1,5 @@
+HOST = "158.39.163.5"
+PORT = 30002
+
+socket_open(HOST, PORT, "Unity")
+end
