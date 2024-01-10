@@ -14,7 +14,7 @@ Purpose of this project is to create a robot that can be teleoperated with Virtu
 - HTC VIVE PRO 2 (We have tested with 1)
 - 2 VR controllers
 - 4 VR base stations
-## Plugins/Libraries for Unity
+## Plugins/Libraries for Unity (Unity version 2021.3.18f1)
 - SteamVR
 - MJPEG stream decoder by <a href="https://gist.github.com/lightfromshadows/79029ca480393270009173abc7cad858" target="_blank">lightfromshadows</a>
 ## Libraries for Raspberry pi
