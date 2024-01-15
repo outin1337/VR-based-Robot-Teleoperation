@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Net;
 using System.Net.Sockets;
@@ -46,20 +47,68 @@ public class Socket_robot_arm
 
     public void SendMessageToClient(Vector3 vectorToSend)
     {
-        if (tcpListener.Pending())
+        string messageToSend = string.Format(CultureInfo.InvariantCulture, "({0:F4},{1:F4},{2:F4})", vectorToSend.x, vectorToSend.y, vectorToSend.z);
+        byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
+        networkStream.Write(messageBytes, 0, messageBytes.Length);
+        Debug.Log("Sent: " + messageToSend);
+    }
+
+    public async Task<string> ReadMessageFromClientAsync()
+    {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        
+        bytesRead = await networkStream.ReadAsync(buffer, 0, buffer.Length);
+         
+        if (bytesRead > 0)
         {
+            string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+            Debug.Log(message);
+            return message;
+        }
+
+        return "";
+    }
+        
+    public void CloseConnection()
+    {
+        if (networkStream != null)
+        {
+            try
             {
-                Debug.Log("Accepted new client");
-                string messageToSend = string.Format(CultureInfo.InvariantCulture, "{0:F2},{1:F2},{2:F2},{3:F2}", "r",
-                    vectorToSend.x, vectorToSend.y, vectorToSend.z);
-                byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
-                networkStream.Write(messageBytes, 0, messageBytes.Length);
-                Debug.Log("Sent: " + messageToSend);
+                networkStream.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error closing network stream: " + e.Message);
             }
         }
-        else
+
+        if (connectedClient != null)
         {
-            Debug.LogWarning("No client connection pending.");
+            try
+            {
+                connectedClient.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error closing TcpClient: " + e.Message);
+            }
+        }
+    }
+
+    public void StopListener()
+    {
+        if (tcpListener != null)
+        {
+            try
+            {
+                tcpListener.Stop();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Error stopping TcpListener: " + e.Message);
+            }
         }
     }
 }

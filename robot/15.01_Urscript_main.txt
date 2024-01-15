@@ -1,0 +1,35 @@
+  socket_close("Unity")  
+  HOST = "158.39.163.5"
+  PORT = 30002
+  socket_open(HOST, PORT, "Unity")
+  socket_send_string("ready", "Unity")
+while (True):
+  data = socket_read_ascii_float(3, "Unity")
+if(data[0] != 0):
+    textmsg(data)
+    #data_split = str_split(data)
+    data_split = data
+    tcp_pose = get_target_tcp_pose()
+    tcp_actual = tcp_pose
+    # Displacement
+    tcp_pose[0] = tcp_pose[0] + data_split[1]
+    tcp_pose[1] = tcp_pose[1] + data_split[3]
+    tcp_pose[2] = tcp_pose[2] + data_split[2]
+    # Rotation
+    #tcp_pose[3] = tcp_pose[3] + data_split[3]
+    #tcp_pose[4] = tcp_pose[4] + data_split[4]
+    #tcp_pose[5] = tcp_pose[5] + data_split[5]
+    #textmsg(tcp_pose) 
+    if(get_inverse_kin_has_solution(tcp_pose)):
+      diff = get_inverse_kin(tcp_pose) - get_actual_joint_positions()
+      diff = diff * 1.5
+      speedj(diff, 6)
+      #servoj(get_inverse_kin(tcp_pose),lookahead_time=0.1,  gain=1000)
+      #movej(tcp_pose)
+      #movel(tcp_pose,a=2.5, v=5, t=0, r=0)
+    else:
+      textmsg("No solution found")
+    end
+    socket_send_string("ready", "Unity") 
+  end
+end
