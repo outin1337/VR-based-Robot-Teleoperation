@@ -2,8 +2,10 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 from ultralytics import YOLO
+from ultralytics.utils.plotting import Annotator
+import torch
 
-model = YOLO('YOLOv8s-seg.pt')
+model = YOLO('raspberry\Yolo\yolov8n-seg.pt')
 
 pipeline = rs.pipeline()
 config = rs.config()
@@ -30,6 +32,7 @@ else:
     config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
 pipeline.start(config)
+once = True
 
 try:
     while True:
@@ -42,8 +45,34 @@ try:
         depth_image = np.asanyarray(depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
 
-        results = model(color_image)
-        yolo_frame = results[0].plot()
+        
+        results = model.predict(color_image, conf=0.8)
+        annotator = Annotator(color_image)
+        # TODO: Fix FOV translation between rgb and depth camera (x,y)
+        if results[0].masks is not None:
+            clss = results[0].boxes.cls.cpu().tolist()
+            masks = results[0].masks.xy
+            for ind, mask, cls in zip(range(len(masks)), masks, clss):
+                arr_len = len(masks[ind])
+                x, y = masks[ind][arr_len//2][0], masks[ind][arr_len//2][1]
+                #x, y = masks[ind][ind][0], masks[ind][ind][1]
+                annotator.seg_bbox(mask=mask,
+                                   det_label=model.model.names[int(cls)] + " " + str(round(depth_frame.get_distance(int(x), int(y)), 2)) + "m")
+                annotator.box_label(torch.tensor([x,y, x+1,y+1]), "POINT (" + str(x) +", "+ str(y) + ")")
+
+        #for r in results:
+            
+                
+           #boxes = r.boxes
+           #for box in boxes:
+           #    b = box.xyxy[0]
+           #    c = box.cls
+           #    x1, y1, x2, y2 = b.numpy()
+           #    x, y = (x1+x2)/2, (y1+y2)/2
+           #    annotator.box_label(b, model.names[int(c)] + " " + str(round(depth_frame.get_distance(int(x), int(y)), 2)) + "m")
+           #    #print(model.names[int(c)], b)
+        #yolo_frame = results[0].plot()
+        #yolo_frame = annotator.result()
 
         depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
 
@@ -58,7 +87,6 @@ try:
 
         cv2.namedWindow('RealSense')
         cv2.imshow('RealSense', images)
-        cv2.imshow('Yolo', yolo_frame)
         cv2.waitKey(1)
 
 finally:
