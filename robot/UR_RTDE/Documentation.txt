@@ -1,0 +1,5 @@
+IDE used pyCharm
+
+
+Refrence https://sdurobotics.gitlab.io/ur_rtde/index.html
+ 
