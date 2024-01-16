@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using Valve.VR;
 
@@ -7,7 +9,7 @@ public class Posistion_UR : MonoBehaviour
     public SteamVR_Input_Sources handType; // Set this to LeftHand or RightHand in the inspector
 
     private SteamVR_Behaviour_Pose controllerPose;
-    private double treshold_pos = 0.01;
+    private double treshold_pos = 0.001;
     private double treshold_ang = 90;
 
     private Vector3 currentControllerPosition;
@@ -22,6 +24,8 @@ public class Posistion_UR : MonoBehaviour
     public Socket_robot_arm networkManager;
 
     public SteamVR_Action_Boolean grabPinchAction;
+    
+    private bool isAsyncTaskRunning = false;
 
     
 
@@ -45,11 +49,21 @@ public class Posistion_UR : MonoBehaviour
     {
         if (grabPinchAction.GetState(handType))
         {
-            rotate();
+            if (!isAsyncTaskRunning)
+            {
+                isAsyncTaskRunning = true;
+                rotate();
+            }
         }
     }
+    
+    private void OnApplicationQuit()
+    {
+        networkManager.CloseConnection();
+        networkManager.StopListener();
+    }
 
-    private void rotate()
+    private async Task rotate()
     {
         if (controllerPose == null)
             return;
@@ -63,9 +77,10 @@ public class Posistion_UR : MonoBehaviour
 
         if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold 
         {
-            Debug.Log("Difference position: " + deltaControllerPosition);
-            if (networkManager.clientPending())
+            
+            if (await networkManager.ReadMessageFromClientAsync() == "ready")
             {
+                Debug.Log("Difference position: " + deltaControllerPosition);
                 deltaControllerPosition += unsentDeltaControllerPosition;
                 networkManager.SendMessageToClient(deltaControllerPosition);
                 unsentDeltaControllerPosition.x = 0;
@@ -74,7 +89,7 @@ public class Posistion_UR : MonoBehaviour
             }
             else
             {
-
+                Debug.Log("No client pending");
                 unsentDeltaControllerPosition += deltaControllerPosition;
             }
             //Debug.Log("Controller Position: " + currentControllerPosition);
@@ -87,6 +102,8 @@ public class Posistion_UR : MonoBehaviour
             Debug.Log("Controller rotation: " + currentControllerRotation);
             previousControllerRotation = currentControllerRotation;
         }*/
+        
+        isAsyncTaskRunning = false;
     }
 
 
