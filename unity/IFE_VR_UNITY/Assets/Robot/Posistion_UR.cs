@@ -21,11 +21,14 @@ public class Posistion_UR : MonoBehaviour
     private Vector3 deltaControllerRotation;
     private Vector3 unsentDeltaControllerPosition;
 
+    private Vector3 defaultpos;
+
     public Socket_robot_arm networkManager;
 
     public SteamVR_Action_Boolean grabPinchAction;
     
     private bool isAsyncTaskRunning = false;
+    private bool initalPoseBool = true;
 
     
 
@@ -39,8 +42,10 @@ public class Posistion_UR : MonoBehaviour
         {
             Debug.LogWarning("No SteamVR_Behaviour_Pose component found on this game object. Make sure it's attached to a SteamVR controller.");
         }
-         previousControllerPosition = controllerPose.transform.position;
-         previousControllerRotation = controllerPose.transform.localEulerAngles;
+
+        defaultpos = controllerPose.transform.position;
+        previousControllerPosition = controllerPose.transform.position;
+        previousControllerRotation = controllerPose.transform.localEulerAngles;
 
         
     }
@@ -65,6 +70,14 @@ public class Posistion_UR : MonoBehaviour
 
     private async Task rotate()
     {
+
+        if (initalPoseBool)
+        {
+            previousControllerPosition = controllerPose.transform.position;
+            initalPoseBool = false;
+        }
+           
+        
         if (controllerPose == null)
             return;
 
@@ -76,8 +89,7 @@ public class Posistion_UR : MonoBehaviour
 
 
         if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold 
-        {
-            
+        { 
             if (await networkManager.ReadMessageFromClientAsync() == "ready")
             {
                 Debug.Log("Difference position: " + deltaControllerPosition);
@@ -89,7 +101,7 @@ public class Posistion_UR : MonoBehaviour
             }
             else
             {
-                Debug.Log("No client pending");
+                Debug.Log("Read operation timed out");
                 unsentDeltaControllerPosition += deltaControllerPosition;
             }
             //Debug.Log("Controller Position: " + currentControllerPosition);

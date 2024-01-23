@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -57,17 +58,39 @@ public class Socket_robot_arm
     {
         byte[] buffer = new byte[1024];
         int bytesRead;
+        var timeoutMilliseconds = 1000;
+        using var cancellationTokenSource = new CancellationTokenSource();
         
-        bytesRead = await networkStream.ReadAsync(buffer, 0, buffer.Length);
-         
-        if (bytesRead > 0)
+        try
         {
-            string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-            Debug.Log(message);
-            return message;
+            var readTask = networkStream.ReadAsync(buffer, 0, buffer.Length, cancellationTokenSource.Token);
+            var timeoutTask = Task.Delay(timeoutMilliseconds);
+        
+        
+            var completedTask = await Task.WhenAny(readTask, timeoutTask);
+        
+            if (completedTask == timeoutTask)
+            {
+                cancellationTokenSource.Cancel(); 
+            }
+            else
+            {
+                bytesRead = await readTask;
+                if (bytesRead > 0)
+                {
+                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    Debug.Log(message);
+                    return message;
+                }
+                return "";
+            }
+            return "";
         }
-
-        return "";
+        catch (Exception ex)
+        {
+            Debug.Log("An exception occurred: " + ex.Message);
+            return "";
+        }
     }
         
     public void CloseConnection()
