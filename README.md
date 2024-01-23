@@ -1,6 +1,6 @@
 
   
-# IFE VR Robot
+# IFE VR Robot OUTDATED README!
 ## Project
 
 We are going to control the robot arm with an VR controller and have a camera on a gimbal that has 3 axes (pitch, yaw, roll) with stepper motors to control the rotation with the VR headset.
