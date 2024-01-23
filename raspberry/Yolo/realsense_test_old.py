@@ -6,11 +6,12 @@ from ultralytics.utils.plotting import Annotator
 import random
 import torch
 
-DEBUG = True
+
+DEBUG = False
 RUN = True
 ONCE = True
 
-model = YOLO('yolov8n.pt')
+#model = YOLO('yolov8n-seg.pt')
 
 pipeline = rs.pipeline()
 config = rs.config()
@@ -30,11 +31,9 @@ if not found_rgb:
     exit(0)
 
 config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-
-if device_product_line == 'L500':
-    config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
-else:
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+#config.enable_stream(rs.stream.accel, rs.format.motion_xyz32f, 250)
+#config.enable_stream(rs.stream.gyro, rs.format.motion_xyz32f, 200)
 
 pipeline.start(config)
 
@@ -59,60 +58,63 @@ try:
         depth_image = np.asanyarray(depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
 
-        
+        rgba = cv2.cvtColor(color_image, cv2.COLOR_RGB2RGBA)
+        rgba[:,:,3] = depth_image
+
+        """
         results = model.predict(color_image, conf=0.7, verbose=False)
         annotator = Annotator(color_image)
-        #if results[0].masks is not None:
-        #    clss = results[0].boxes.cls.cpu().tolist()
-        #    masks = results[0].masks.xy
-        #    for ind, mask, cls in zip(range(len(masks)), masks, clss):
-        #        arr_len = len(masks[ind])
-        #        #x, y = masks[ind][arr_len//8][0], masks[ind][arr_len//8][1]
-        #        x, y = masks[ind][0][0], masks[ind][0][1]
-        #        annotator.seg_bbox(mask=mask,
-        #                           det_label=model.model.names[int(cls)] + " " + str(round(depth_frame.get_distance(int(x), int(y)), 2)) + "m")
-        #        if DEBUG:
-        #            annotator.box_label(torch.tensor([x,y+15, x,y+16]), "(" + str(x) +", "+ str(y) + ")")
+        if results[0].masks is not None:
+            clss = results[0].boxes.cls.cpu().tolist()
+            masks = results[0].masks.xy
+            for ind, mask, cls in zip(range(len(masks)), masks, clss):
+                arr_len = len(masks[ind])
+                #x, y = masks[ind][arr_len//8][0], masks[ind][arr_len//8][1]
+                x, y = masks[ind][0][0], masks[ind][0][1]
+                annotator.seg_bbox(mask=mask,
+                                   det_label=model.model.names[int(cls)] + " " + str(round(depth_frame.get_distance(int(x), int(y)), 2)) + "m")
+                if DEBUG:
+                    annotator.box_label(torch.tensor([x,y+15, x,y+16]), "(" + str(x) +", "+ str(y) + ")")
+        """
 
-        if ONCE:
-            print(results)
-            ONCE = False
-
-        for r in results:
-          
-          boxes = r.boxes
-          for box in boxes:
-              b = box.xyxy[0]
-              c = box.cls
-              x1, y1, x2, y2 = b.numpy()
-              x, y = (x1+x2)/2, (y1+y2)/2
-              label = model.names[int(c)] + " " + str(round(depth_frame.get_distance(int(x), int(y)), 2)) + "m"
-              random.seed(int(c))
-              annotator.box_label(b, label=label, color=(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
-              if DEBUG:
-                annotator.box_label(torch.tensor([x,y+1, x,y+1]), "(" + str(round(x,2)) +", "+ str(round(y,2)) + ")")
+        #for r in results:
+        #  
+        #  boxes = r.boxes
+        #  for box in boxes:
+        #      b = box.xyxy[0]
+        #      c = box.cls
+        #      x1, y1, x2, y2 = b.numpy()
+        #      x, y = (x1+x2)/2, (y1+y2)/2
+        #      label = model.names[int(c)] + " " + str(round(depth_frame.get_distance(int(x), int(y)), 2)) + "m"
+        #      random.seed(int(c))
+        #      annotator.box_label(b, label=label, color=(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
+        #      if DEBUG:
+        #        annotator.box_label(torch.tensor([x,y+1, x,y+1]), "(" + str(round(x,2)) +", "+ str(round(y,2)) + ")")
               #print(model.names[int(c)], b)
         #yolo_frame = results[0].plot()
         #yolo_frame = annotator.result()
 
-        depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+        
 
-        depth_colormap_dim = depth_colormap.shape
-        color_colormap_dim = color_image.shape
-
+        """
         if depth_colormap_dim != color_colormap_dim:
             resized_color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
             images = np.hstack((resized_color_image, depth_colormap))
         else:
             images = np.hstack((color_image, depth_colormap))
+        """
+
+        
 
         if DEBUG:
-            cv2.namedWindow('RealSense')
-            cv2.imshow('RealSense', images)
+            depth_colormap = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            images = np.hstack((color_image, depth_colormap))
+            #cv2.namedWindow('RealSense')
+            #cv2.imshow('RealSense', images)
+            cv2.imshow('RGB', color_image)
+            cv2.imshow('Depth', depth_image)
             key = cv2.waitKey(1)
-        else:
-            pass
-            
+        
         
         if key & 0xFF == ord('q') or key & 0xFF == ord('Q'):
                 RUN = False

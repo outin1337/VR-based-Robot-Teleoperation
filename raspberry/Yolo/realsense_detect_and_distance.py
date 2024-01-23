@@ -8,7 +8,7 @@ import torch
 
 class CameraStream:
 
-    def __init__(self, DEBUG=True):
+    def __init__(self, DEBUG=True, height=640, width=480, fps=30):
         self.DEBUG = DEBUG
         if DEBUG: print('WARNING: Debug is on')
         self.RUN = True
@@ -32,7 +32,6 @@ class CameraStream:
             print("The demo requires Depth camera with Color sensor")
             exit(0)
         
-    def config(self, height=640, width=480, fps=30):
         self.config.enable_stream(rs.stream.depth, height, width, rs.format.z16, fps)
 
         if self.device_product_line == 'L500':
@@ -44,7 +43,7 @@ class CameraStream:
     
     def stream(self):
         try:
-            while self.RUN:
+            while True:
                 self.align = rs.align(rs.stream.color)
                 self.frames = self.pipeline.wait_for_frames()
                 self.aligned_frames = self.align.process(self.frames)
@@ -80,11 +79,15 @@ class CameraStream:
                 self.depth_colormap_dim = self.depth_colormap.shape
                 self.color_colormap_dim = self.color_image.shape
 
+                """
                 if self.depth_colormap_dim != self.color_colormap_dim:
                     self.resized_color_image = cv2.resize(self.color_image, dsize=(self.depth_colormap_dim[1], self.depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
                     images = np.hstack((self.resized_color_image, self.depth_colormap))
                 else:
                     images = np.hstack((self.color_image, self.depth_colormap))
+                """
+
+                images = np.hstack((self.color_image, self.depth_colormap))
 
                 if self.DEBUG:
                     cv2.namedWindow('RealSense')
@@ -92,11 +95,17 @@ class CameraStream:
                     self.key = cv2.waitKey(1)
                 
                 if self.key & 0xFF == ord('q') or self.key & 0xFF == ord('Q'):
-                        RUN = False
+                        self.RUN = False
+                        print('test')
                         cv2.destroyAllWindows()
                         break
                 
-                return self.resized_color_image
+                return images
 
         finally:
             self.pipeline.stop()
+
+stream = CameraStream()
+
+#stream.config()
+stream.stream()
