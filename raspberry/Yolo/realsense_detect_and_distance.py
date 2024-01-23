@@ -79,7 +79,11 @@ class CameraStream:
                 self.depth_colormap_dim = self.depth_colormap.shape
                 self.color_colormap_dim = self.color_image.shape
 
+<<<<<<< HEAD
                 """
+=======
+                # MAYBE REMOVE THIS?? -
+>>>>>>> a1b5aa816667e28bb1820fee7cec2b7d09069484
                 if self.depth_colormap_dim != self.color_colormap_dim:
                     self.resized_color_image = cv2.resize(self.color_image, dsize=(self.depth_colormap_dim[1], self.depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
                     images = np.hstack((self.resized_color_image, self.depth_colormap))
@@ -104,8 +108,11 @@ class CameraStream:
 
         finally:
             self.pipeline.stop()
+<<<<<<< HEAD
 
 stream = CameraStream()
 
 #stream.config()
 stream.stream()
+=======
+>>>>>>> a1b5aa816667e28bb1820fee7cec2b7d09069484
