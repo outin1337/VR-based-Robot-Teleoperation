@@ -70,14 +70,28 @@ public class Posistion_UR : MonoBehaviour
 
     private async Task rotate()
     {
+        
+        //Using velocity
+        /*if (await networkManager.ReadMessageFromClientAsync() == "ready")
+        {
+            networkManager.SendMessageToClient(controllerPose.GetVelocity());
+            
+        }
 
+        else
+        { 
+            Debug.Log("Read operation timed out");
+        }
+        */
+        
+        //Using delta coordinates
         if (initalPoseBool)
         {
             previousControllerPosition = controllerPose.transform.position;
             initalPoseBool = false;
         }
-           
-        
+
+
         if (controllerPose == null)
             return;
 
@@ -88,8 +102,8 @@ public class Posistion_UR : MonoBehaviour
         deltaControllerRotation = AngleDifference(previousControllerRotation, currentControllerRotation);
 
 
-        if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold 
-        { 
+        if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold
+        {
             if (await networkManager.ReadMessageFromClientAsync() == "ready")
             {
                 Debug.Log("Difference position: " + deltaControllerPosition);
@@ -108,7 +122,7 @@ public class Posistion_UR : MonoBehaviour
             previousControllerPosition = currentControllerPosition;
         }
 
-        /*if (Mathf.Abs(deltaControllerRotation.x) > treshold_ang || Mathf.Abs(deltaControllerRotation.y) > treshold_ang || Mathf.Abs(deltaControllerRotation.z) > treshold_ang) //Sjekker om rotasjonen er st�rre en treshhold 
+        /*if (Mathf.Abs(deltaControllerRotation.x) > treshold_ang || Mathf.Abs(deltaControllerRotation.y) > treshold_ang || Mathf.Abs(deltaControllerRotation.z) > treshold_ang) //Sjekker om rotasjonen er st�rre en treshhold
         {
             Debug.Log("Difference rotation: " + deltaControllerRotation);
             Debug.Log("Controller rotation: " + currentControllerRotation);
