@@ -65,8 +65,8 @@ if __name__ == "__main__":
     lookahead_time = 0.1
     gain = 100
 
-    rtde_c = rtde_control.RTDEControlInterface("192.168.87.128")#192.168.87.128 sim, 158.39.162.151 robot
-    rtde_r = rtde_receive.RTDEReceiveInterface("192.168.87.128")
+    rtde_c = rtde_control.RTDEControlInterface("158.39.162.177")#192.168.87.128 sim, 158.39.162.151 robot
+    rtde_r = rtde_receive.RTDEReceiveInterface("158.39.162.177")
     #actualTcp = rtde_r.getTargetTCPPose()
     #print("Første", actualTcp)
 

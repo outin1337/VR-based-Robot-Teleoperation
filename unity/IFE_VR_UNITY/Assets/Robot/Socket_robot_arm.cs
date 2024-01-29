@@ -53,6 +53,17 @@ public class Socket_robot_arm
         networkStream.Write(messageBytes, 0, messageBytes.Length);
         Debug.Log("Sent: " + messageToSend);
     }
+    
+    
+    public void SendMessageToClient(Vector3 vectorToSend, int gripperStateToSend)
+    {
+        string messageToSend = string.Format(CultureInfo.InvariantCulture, "({0:F4},{1:F4},{2:F4}, {3})", vectorToSend.x, vectorToSend.y, vectorToSend.z, gripperStateToSend);
+        byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
+        networkStream.Write(messageBytes, 0, messageBytes.Length);
+        Debug.Log("Sent: " + messageToSend);
+    }
+
+
 
     public async Task<string> ReadMessageFromClientAsync()
     {

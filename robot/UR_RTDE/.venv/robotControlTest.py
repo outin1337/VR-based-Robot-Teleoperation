@@ -1,6 +1,14 @@
 import socket
+
+import numpy as np
 import rtde_control
 import rtde_receive
+import robotiq_gripper
+
+
+gripperToggle = 255
+pi = np.pi
+ip = "158.39.162.177"
 
 def connect_to_server():
     robot_ip = "158.39.163.5"
@@ -22,9 +30,20 @@ def read_msg():
         delta_array = [float(value) for value in values]
         print(delta_array)
 
-        actualTcp[0] += delta_array[0]
-        actualTcp[1] += delta_array[2]
+
+        actualTcp[0] += delta_array[0] * -1
+        actualTcp[1] += delta_array[2] * -1
         actualTcp[2] += delta_array[1]
+
+        print(delta_array[3], type(delta_array[3]))
+
+        if int(delta_array[3]) == 1:
+            #global gripperToggle
+            gripper.move(255, 255, 255)
+            #gripperToggle = 0 if gripperToggle == 255 else 255
+        else:
+            gripper.move(0, 255, 255)
+
 
         print(actualTcp)
 
@@ -59,13 +78,20 @@ if __name__ == "__main__":
     lookahead_time = 0.1
     gain = 100
 
-    rtde_c = rtde_control.RTDEControlInterface("158.39.162.151")
-    rtde_r = rtde_receive.RTDEReceiveInterface("158.39.162.151")
+    rtde_c = rtde_control.RTDEControlInterface("158.39.162.177")
+    rtde_r = rtde_receive.RTDEReceiveInterface("158.39.162.177")
+    gripper = robotiq_gripper.RobotiqGripper()
+    gripper.connect(ip, 63352)
+    rtde_c.moveJ([-pi / 2, -pi / 2, -pi / 2, -pi / 2, pi / 2, 0])
+    gripper.activate()
+    #gripper.move(255, 255, 255)
     actualTcp = rtde_r.getTargetTCPPose()
     print("Første", actualTcp)
 
     client_socket = connect_to_server()
+    actualTcp = rtde_r.getActualTCPPose()
     send_msg()
+
     try:
         while True:
             read_msg()

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using Valve.VR;
+using Valve.VR.InteractionSystem;
 
 
 public class Posistion_UR : MonoBehaviour
@@ -26,6 +27,9 @@ public class Posistion_UR : MonoBehaviour
     public Socket_robot_arm networkManager;
 
     public SteamVR_Action_Boolean grabPinchAction;
+    public SteamVR_Action_Boolean teleportAction;
+
+    private int gripperButton = -1;
     
     private bool isAsyncTaskRunning = false;
     private bool initalPoseBool = true;
@@ -52,6 +56,15 @@ public class Posistion_UR : MonoBehaviour
 
     void Update()
     {
+        if (teleportAction.GetStateUp(handType))
+        {
+            gripperButton *= -1;
+        }
+        /*else
+        {
+            gripperButton = 0;
+        }*/
+        
         if (grabPinchAction.GetState(handType))
         {
             if (!isAsyncTaskRunning)
@@ -108,7 +121,7 @@ public class Posistion_UR : MonoBehaviour
             {
                 Debug.Log("Difference position: " + deltaControllerPosition);
                 deltaControllerPosition += unsentDeltaControllerPosition;
-                networkManager.SendMessageToClient(deltaControllerPosition);
+                networkManager.SendMessageToClient(deltaControllerPosition, gripperButton);
                 unsentDeltaControllerPosition.x = 0;
                 unsentDeltaControllerPosition.y = 0;
                 unsentDeltaControllerPosition.z = 0;
