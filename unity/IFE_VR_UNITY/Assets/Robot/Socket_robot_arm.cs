@@ -55,9 +55,12 @@ public class Socket_robot_arm
     }
     
     
-    public void SendMessageToClient(Vector3 vectorToSend, int gripperStateToSend)
+    public void SendMessageToClient(Vector3 vectorToSend, Vector3 axisVector, int gripperStateToSend)
     {
-        string messageToSend = string.Format(CultureInfo.InvariantCulture, "({0:F4},{1:F4},{2:F4}, {3})", vectorToSend.x, vectorToSend.y, vectorToSend.z, gripperStateToSend);
+        string messageToSend = string.Format(CultureInfo.InvariantCulture, 
+            "({0:F4},{1:F4},{2:F4}, {3:F4}, {4:F4}, {5:F4}, {6})", 
+            vectorToSend.x, vectorToSend.y, vectorToSend.z, axisVector.x, axisVector.y, axisVector.z, gripperStateToSend);
+        
         byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
         networkStream.Write(messageBytes, 0, messageBytes.Length);
         Debug.Log("Sent: " + messageToSend);

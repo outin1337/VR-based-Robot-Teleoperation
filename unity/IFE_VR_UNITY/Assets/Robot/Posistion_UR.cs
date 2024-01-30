@@ -17,12 +17,14 @@ public class Posistion_UR : MonoBehaviour
     private Vector3 previousControllerPosition;
     private Vector3 deltaControllerPosition;
 
-    private Vector3 currentControllerRotation;
-    private Vector3 previousControllerRotation;
-    private Vector3 deltaControllerRotation;
+    private Quaternion currentControllerRotation;
+    private Quaternion previousControllerRotation;
+    private Quaternion deltaControllerRotation;
+    //https://docs.unity3d.com/ScriptReference/Quaternion.ToAngleAxis.html
+    float axisAngle = 0.0f;
+    Vector3 axisVector = Vector3.zero;
+    
     private Vector3 unsentDeltaControllerPosition;
-
-    private Vector3 defaultpos;
 
     public Socket_robot_arm networkManager;
 
@@ -47,9 +49,9 @@ public class Posistion_UR : MonoBehaviour
             Debug.LogWarning("No SteamVR_Behaviour_Pose component found on this game object. Make sure it's attached to a SteamVR controller.");
         }
 
-        defaultpos = controllerPose.transform.position;
+        
         previousControllerPosition = controllerPose.transform.position;
-        previousControllerRotation = controllerPose.transform.localEulerAngles;
+        previousControllerRotation = controllerPose.transform.localRotation;
 
         
     }
@@ -60,13 +62,14 @@ public class Posistion_UR : MonoBehaviour
         {
             gripperButton *= -1;
         }
-        /*else
-        {
-            gripperButton = 0;
-        }*/
         
         if (grabPinchAction.GetState(handType))
         {
+            if (grabPinchAction.GetStateDown(handType))
+            {
+                initalPoseBool = true;
+            }
+                
             if (!isAsyncTaskRunning)
             {
                 isAsyncTaskRunning = true;
@@ -111,9 +114,14 @@ public class Posistion_UR : MonoBehaviour
         currentControllerPosition = controllerPose.transform.position;
         deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
-        currentControllerRotation = controllerPose.transform.localEulerAngles;
-        deltaControllerRotation = AngleDifference(previousControllerRotation, currentControllerRotation);
-
+        currentControllerRotation = controllerPose.transform.localRotation;
+        deltaControllerRotation = currentControllerRotation * Quaternion.Inverse(previousControllerRotation);
+        //deltaControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
+        currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
+        axisAngle *= Mathf.Deg2Rad;
+        axisVector = axisVector * axisAngle/axisVector.magnitude;
+        
+        Debug.Log(string.Format("Rotation vector: {0:F4},{1:F4},{2:F4}", axisVector.x, axisVector.y, axisVector.z));
 
         if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold
         {
@@ -121,7 +129,7 @@ public class Posistion_UR : MonoBehaviour
             {
                 Debug.Log("Difference position: " + deltaControllerPosition);
                 deltaControllerPosition += unsentDeltaControllerPosition;
-                networkManager.SendMessageToClient(deltaControllerPosition, gripperButton);
+                networkManager.SendMessageToClient(deltaControllerPosition, axisVector, gripperButton);
                 unsentDeltaControllerPosition.x = 0;
                 unsentDeltaControllerPosition.y = 0;
                 unsentDeltaControllerPosition.z = 0;
@@ -133,14 +141,9 @@ public class Posistion_UR : MonoBehaviour
             }
             //Debug.Log("Controller Position: " + currentControllerPosition);
             previousControllerPosition = currentControllerPosition;
-        }
-
-        /*if (Mathf.Abs(deltaControllerRotation.x) > treshold_ang || Mathf.Abs(deltaControllerRotation.y) > treshold_ang || Mathf.Abs(deltaControllerRotation.z) > treshold_ang) //Sjekker om rotasjonen er st�rre en treshhold
-        {
-            Debug.Log("Difference rotation: " + deltaControllerRotation);
-            Debug.Log("Controller rotation: " + currentControllerRotation);
             previousControllerRotation = currentControllerRotation;
-        }*/
+        }
+        
         
         isAsyncTaskRunning = false;
     }

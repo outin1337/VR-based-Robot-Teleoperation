@@ -6,7 +6,8 @@ import rtde_receive
 import robotiq_gripper
 
 
-gripperToggle = 255
+
+
 pi = np.pi
 ip = "158.39.162.177"
 
@@ -20,6 +21,7 @@ def connect_to_server():
 
 
 def read_msg():
+    global actualTcp
     t_start = rtde_c.initPeriod()
     data = client_socket.recv(1024)
     if data:
@@ -28,19 +30,21 @@ def read_msg():
         print(f"Received: {received_message}")
         values = received_message.strip('()').split(',')
         delta_array = [float(value) for value in values]
-        print(delta_array)
 
+        print(-delta_array[3], -delta_array[5], -delta_array[4])
 
         actualTcp[0] += delta_array[0] * -1
         actualTcp[1] += delta_array[2] * -1
         actualTcp[2] += delta_array[1]
 
-        print(delta_array[3], type(delta_array[3]))
+        actualTcp[3] = delta_array[3]
+        actualTcp[4] = delta_array[4]
+        actualTcp[5] = delta_array[5]
 
-        if int(delta_array[3]) == 1:
-            #global gripperToggle
+
+        if int(delta_array[6]) == 1:
             gripper.move(255, 255, 255)
-            #gripperToggle = 0 if gripperToggle == 255 else 255
+
         else:
             gripper.move(0, 255, 255)
 
@@ -51,6 +55,7 @@ def read_msg():
             rtde_c.servoL(actualTcp, velocity, acceleration, dt, lookahead_time, gain)
         else:
             print("no solution")
+            actualTcp = rtde_r.getActualTCPPose()
         send_msg()
         rtde_c.waitPeriod(t_start)
 
@@ -59,6 +64,7 @@ def read_msg():
             rtde_c.servoL(actualTcp, velocity, acceleration, dt, lookahead_time, gain)
         else:
             print("no solution")
+            actualTcp = rtde_r.getActualTCPPose()
         rtde_c.waitPeriod(t_start)
 
 
