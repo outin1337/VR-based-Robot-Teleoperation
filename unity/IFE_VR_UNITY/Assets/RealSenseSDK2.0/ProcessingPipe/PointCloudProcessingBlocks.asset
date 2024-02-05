@@ -114,7 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab8658da5fac1924385546d4cfccbea4, type: 3}
   m_Name: RsDecimationFilter
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   _streamFilter: 1
   _formatFilter: 5
   _filterMagnitude: 4
@@ -175,5 +175,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a370b019fb25fbe4384bc45033197fcd, type: 3}
   m_Name: RsHoleFillingFilter
   m_EditorClassIdentifier: 
-  enabled: 0
+  enabled: 1
   _holesFill: 2
