@@ -22,6 +22,7 @@ public class Posistion_UR : MonoBehaviour
 
     private Quaternion deltaControllerRotation;
     private Quaternion totalControllerRotation;
+    private Quaternion normalizedtotalControllerRotation;
 
     //https://docs.unity3d.com/ScriptReference/Quaternion.ToAngleAxis.html
     float axisAngle = 0.0f;
@@ -94,14 +95,17 @@ public class Posistion_UR : MonoBehaviour
 
         if (oneTimeSetupBool)
         { 
-            totalControllerRotation = previousControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+            totalControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+            previousControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
             //totalControllerRotation = controllerPose.transform.rotation;
+            //totalControllerRotation = Quaternion.identity;
             oneTimeSetupBool = false;
         }
         
         if (initalPoseBool)
         {
             previousControllerPosition = controllerPose.transform.position;
+            previousControllerRotation = rotationToRobot * controllerPose.transform.rotation * xOffsetRotation;
             initalPoseBool = false;
         }
 
@@ -112,17 +116,13 @@ public class Posistion_UR : MonoBehaviour
         currentControllerPosition = controllerPose.transform.position;
         deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
-        currentControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+        currentControllerRotation = rotationToRobot * controllerPose.transform.rotation * xOffsetRotation;
         //currentControllerRotation = controllerPose.transform.rotation;
-        deltaControllerRotation = Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
+        deltaControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
         totalControllerRotation *=  deltaControllerRotation; 
         
-        Debug.Log("AAAAAAAAAA" + totalControllerRotation.eulerAngles);
-        Debug.Log("BBBBBBBBBB" + currentControllerRotation.eulerAngles);
-        Debug.Log("CCCCCCCCCC" + deltaControllerRotation.eulerAngles);
-        
-        totalControllerRotation.Normalize();
-        totalControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
+        normalizedtotalControllerRotation = totalControllerRotation.normalized;
+        normalizedtotalControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
         //currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
         axisAngle *= Mathf.Deg2Rad;
         axisVector = axisVector * axisAngle / axisVector.magnitude;
