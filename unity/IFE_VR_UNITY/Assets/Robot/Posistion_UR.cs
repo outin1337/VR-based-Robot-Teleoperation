@@ -19,11 +19,16 @@ public class Posistion_UR : MonoBehaviour
 
     private Quaternion currentControllerRotation;
     private Quaternion previousControllerRotation;
+
     private Quaternion deltaControllerRotation;
+    private Quaternion totalControllerRotation;
+
     //https://docs.unity3d.com/ScriptReference/Quaternion.ToAngleAxis.html
     float axisAngle = 0.0f;
     Vector3 axisVector = Vector3.zero;
-    
+    private Quaternion rotationToRobot = Quaternion.Euler(-90, 0, 0);
+    private Quaternion xOffsetRotation = Quaternion.Euler(-45, 0, 0);
+
     private Vector3 unsentDeltaControllerPosition;
 
     public Socket_robot_arm networkManager;
@@ -32,11 +37,14 @@ public class Posistion_UR : MonoBehaviour
     public SteamVR_Action_Boolean teleportAction;
 
     private int gripperButton = -1;
-    
+
     private bool isAsyncTaskRunning = false;
     private bool initalPoseBool = true;
+    private bool oneTimeSetupBool = true;
 
-    
+    private Vector3 test;
+
+
 
     void Start()
     {
@@ -46,13 +54,9 @@ public class Posistion_UR : MonoBehaviour
 
         if (controllerPose == null)
         {
-            Debug.LogWarning("No SteamVR_Behaviour_Pose component found on this game object. Make sure it's attached to a SteamVR controller.");
+            Debug.LogWarning(
+                "No SteamVR_Behaviour_Pose component found on this game object. Make sure it's attached to a SteamVR controller.");
         }
-
-        
-        previousControllerPosition = controllerPose.transform.position;
-        previousControllerRotation = controllerPose.transform.localRotation;
-
         
     }
 
@@ -62,22 +66,23 @@ public class Posistion_UR : MonoBehaviour
         {
             gripperButton *= -1;
         }
-        
+
         if (grabPinchAction.GetState(handType))
         {
             if (grabPinchAction.GetStateDown(handType))
             {
                 initalPoseBool = true;
             }
-                
+
             if (!isAsyncTaskRunning)
             {
                 isAsyncTaskRunning = true;
                 rotate();
             }
         }
+        //Debug.Log("CCCCCCCCCCC" + totalControllerRotation.eulerAngles);
     }
-    
+
     private void OnApplicationQuit()
     {
         networkManager.CloseConnection();
@@ -86,21 +91,14 @@ public class Posistion_UR : MonoBehaviour
 
     private async Task rotate()
     {
-        
-        //Using velocity
-        /*if (await networkManager.ReadMessageFromClientAsync() == "ready")
-        {
-            networkManager.SendMessageToClient(controllerPose.GetVelocity());
-            
-        }
 
-        else
+        if (oneTimeSetupBool)
         { 
-            Debug.Log("Read operation timed out");
+            totalControllerRotation = previousControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+            //totalControllerRotation = controllerPose.transform.rotation;
+            oneTimeSetupBool = false;
         }
-        */
         
-        //Using delta coordinates
         if (initalPoseBool)
         {
             previousControllerPosition = controllerPose.transform.position;
@@ -114,20 +112,30 @@ public class Posistion_UR : MonoBehaviour
         currentControllerPosition = controllerPose.transform.position;
         deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
-        currentControllerRotation = controllerPose.transform.localRotation;
-        deltaControllerRotation = currentControllerRotation * Quaternion.Inverse(previousControllerRotation);
-        //deltaControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
-        currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
-        axisAngle *= Mathf.Deg2Rad;
-        axisVector = axisVector * axisAngle/axisVector.magnitude;
+        currentControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+        //currentControllerRotation = controllerPose.transform.rotation;
+        deltaControllerRotation = Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
+        totalControllerRotation *=  deltaControllerRotation; 
         
-        Debug.Log(string.Format("Rotation vector: {0:F4},{1:F4},{2:F4}", axisVector.x, axisVector.y, axisVector.z));
+        Debug.Log("AAAAAAAAAA" + totalControllerRotation.eulerAngles);
+        Debug.Log("BBBBBBBBBB" + currentControllerRotation.eulerAngles);
+        Debug.Log("CCCCCCCCCC" + deltaControllerRotation.eulerAngles);
+        
+        totalControllerRotation.Normalize();
+        totalControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
+        //currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
+        axisAngle *= Mathf.Deg2Rad;
+        axisVector = axisVector * axisAngle / axisVector.magnitude;
 
-        if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos || Mathf.Abs(deltaControllerPosition.y) > treshold_pos || Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold
+        //Debug.Log(string.Format("Rotation vector: {0:F4},{1:F4},{2:F4}", axisVector.x, axisVector.y, axisVector.z));
+
+        if (Mathf.Abs(deltaControllerPosition.x) > treshold_pos ||
+            Mathf.Abs(deltaControllerPosition.y) > treshold_pos ||
+            Mathf.Abs(deltaControllerPosition.z) > treshold_pos) //Sjekker om bevegelsen er større en treshhold
         {
             if (await networkManager.ReadMessageFromClientAsync() == "ready")
             {
-                Debug.Log("Difference position: " + deltaControllerPosition);
+                //Debug.Log("Difference position: " + deltaControllerPosition);
                 deltaControllerPosition += unsentDeltaControllerPosition;
                 networkManager.SendMessageToClient(deltaControllerPosition, axisVector, gripperButton);
                 unsentDeltaControllerPosition.x = 0;
@@ -139,29 +147,13 @@ public class Posistion_UR : MonoBehaviour
                 Debug.Log("Read operation timed out");
                 unsentDeltaControllerPosition += deltaControllerPosition;
             }
+
             //Debug.Log("Controller Position: " + currentControllerPosition);
             previousControllerPosition = currentControllerPosition;
-            previousControllerRotation = currentControllerRotation;
         }
-        
-        
+        previousControllerRotation = currentControllerRotation;
+
+
         isAsyncTaskRunning = false;
     }
-
-
-    private Vector3 AngleDifference(Vector3 euler1, Vector3 euler2)
-    {
-        return new Vector3(
-            AngleCorrection(euler1.x, euler2.x),
-            AngleCorrection(euler1.y, euler2.y),
-            AngleCorrection(euler1.z, euler2.z)
-        );
-    }
-
-    private float AngleCorrection(float angle1, float angle2)
-    {
-        float difference = (angle2 - angle1 + 180) % 360 - 180;
-        return difference < -180 ? difference + 360 : difference;
-    }
-
 }

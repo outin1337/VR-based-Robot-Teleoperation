@@ -51,7 +51,7 @@ public class Socket_robot_arm
         string messageToSend = string.Format(CultureInfo.InvariantCulture, "({0:F4},{1:F4},{2:F4})", vectorToSend.x, vectorToSend.y, vectorToSend.z);
         byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
         networkStream.Write(messageBytes, 0, messageBytes.Length);
-        Debug.Log("Sent: " + messageToSend);
+        //Debug.Log("Sent: " + messageToSend);
     }
     
     
@@ -63,7 +63,7 @@ public class Socket_robot_arm
         
         byte[] messageBytes = Encoding.ASCII.GetBytes(messageToSend);
         networkStream.Write(messageBytes, 0, messageBytes.Length);
-        Debug.Log("Sent: " + messageToSend);
+        //Debug.Log("Sent: " + messageToSend);
     }
 
 
