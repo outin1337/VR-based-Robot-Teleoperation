@@ -10,7 +10,7 @@ public class Posistion_UR : MonoBehaviour
     public SteamVR_Input_Sources handType; // Set this to LeftHand or RightHand in the inspector
 
     private SteamVR_Behaviour_Pose controllerPose;
-    private double treshold_pos = 0.001;
+    private double treshold_pos = 0.0;
     private double treshold_ang = 90;
 
     private Vector3 currentControllerPosition;
@@ -23,6 +23,7 @@ public class Posistion_UR : MonoBehaviour
     private Quaternion deltaControllerRotation;
     private Quaternion totalControllerRotation;
     private Quaternion normalizedtotalControllerRotation;
+    private Quaternion staticControllerRotation;
 
     //https://docs.unity3d.com/ScriptReference/Quaternion.ToAngleAxis.html
     float axisAngle = 0.0f;
@@ -97,6 +98,7 @@ public class Posistion_UR : MonoBehaviour
         { 
             totalControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
             previousControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+            staticControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
             //totalControllerRotation = controllerPose.transform.rotation;
             //totalControllerRotation = Quaternion.identity;
             oneTimeSetupBool = false;
@@ -119,7 +121,12 @@ public class Posistion_UR : MonoBehaviour
         currentControllerRotation = rotationToRobot * controllerPose.transform.rotation * xOffsetRotation;
         //currentControllerRotation = controllerPose.transform.rotation;
         deltaControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
-        totalControllerRotation *=  deltaControllerRotation; 
+        totalControllerRotation *= deltaControllerRotation;
+
+        var lala = totalControllerRotation.eulerAngles;
+        lala.x = staticControllerRotation.eulerAngles.x;
+        lala.y = staticControllerRotation.eulerAngles.y;
+        totalControllerRotation = Quaternion.Euler(lala);
         
         normalizedtotalControllerRotation = totalControllerRotation.normalized;
         normalizedtotalControllerRotation.ToAngleAxis(out axisAngle, out axisVector);

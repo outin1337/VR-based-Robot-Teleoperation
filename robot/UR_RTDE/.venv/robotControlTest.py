@@ -9,7 +9,7 @@ import robotiq_gripper
 
 
 pi = np.pi
-ip = "158.39.162.177"
+ip = "158.39.162.177" #158.39.162.177""10.1.1.5"
 
 def connect_to_server():
     robot_ip = "158.39.163.5"
@@ -84,8 +84,8 @@ if __name__ == "__main__":
     lookahead_time = 0.1
     gain = 100
 
-    rtde_c = rtde_control.RTDEControlInterface("158.39.162.177")
-    rtde_r = rtde_receive.RTDEReceiveInterface("158.39.162.177")
+    rtde_c = rtde_control.RTDEControlInterface(ip)
+    rtde_r = rtde_receive.RTDEReceiveInterface(ip)
     gripper = robotiq_gripper.RobotiqGripper()
     gripper.connect(ip, 63352)
     rtde_c.moveJ([-pi / 2, -pi / 2, -pi / 2, -pi / 2, pi / 2, 0])
