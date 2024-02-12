@@ -25,11 +25,12 @@ public class UIManager : MonoBehaviour
     private Vector3 currentControllerPos, previousControllerPos, deltaControllerPos;
     public SteamVR_Action_Boolean menuButton;
 
-    public Sprite Controller_Enabled, Controller_Disabled, Headset_Enabled, Headset_Disabled;
+    public Sprite Controller_Enabled, Controller_Disabled;
     private double treshold = 0.5;
 
     private Image free_image, rotate_image, move_image;
-    private Image VR_Controller, VR_Headset;
+    private Image VR_Controller;
+    private TMPro.TextMeshProUGUI Mode_text;
     private bool controllerExist;
 
 
@@ -48,13 +49,12 @@ public class UIManager : MonoBehaviour
         move_image = MoveMode.GetComponent<Image>();
 
         GameObject VRController = ui.transform.Find("Overlay/VR_Controller").gameObject;
-        GameObject VRHeadset = ui.transform.Find("Overlay/VR_Headset").gameObject;
+        GameObject ModeText = ui.transform.Find("Overlay/Mode").gameObject;
 
         VR_Controller = VRController.GetComponent<Image>();
-        VR_Headset = VRHeadset.GetComponent<Image>();
+        Mode_text = ModeText.GetComponent<TMPro.TextMeshProUGUI>();
 
         VR_Controller.sprite = Controller_Disabled;
-        VR_Headset.sprite = Headset_Disabled;
 
         controllerPos = GetComponent<SteamVR_Behaviour_Pose>();
         controllerExist = controllerPos != null;
@@ -103,18 +103,21 @@ public class UIManager : MonoBehaviour
                 free_image.color = Color.white;
                 rotate_image.color = Color.gray;
                 move_image.color = Color.gray;
+                Mode_text.text = "FreeMode";
             } 
             else if (selected == Option.ROTATEMODE)
             {
                 free_image.color = Color.gray;
                 rotate_image.color = Color.white;
                 move_image.color = Color.gray;
+                Mode_text.text = "RotateMode";
             }
             else if (selected == Option.MOVEMODE)
             {
                 free_image.color = Color.gray;
                 rotate_image.color = Color.gray;
                 move_image.color = Color.white;
+                Mode_text.text = "MoveMode";
             }
 
             previousControllerPos = controllerExist ? controllerPos.transform.position : Vector3.zero;

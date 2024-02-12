@@ -68,7 +68,7 @@ MonoBehaviour:
   enabled: 1
   visualPreset: 1
   colorScheme: 0
-  histogramEqualization: 0
+  histogramEqualization: 1
   minDist: 0
   maxDist: 6
 --- !u!114 &114340648865021418
@@ -101,7 +101,7 @@ MonoBehaviour:
   _filterMagnitude: 2
   _filterSmoothAlpha: 0.5
   _filterSmoothDelta: 20
-  _holeFillingMode: 0
+  _holeFillingMode: 5
 --- !u!114 &114476060953143426
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,4 +176,4 @@ MonoBehaviour:
   m_Name: RsHoleFillingFilter
   m_EditorClassIdentifier: 
   enabled: 1
-  _holesFill: 2
+  _holesFill: 0

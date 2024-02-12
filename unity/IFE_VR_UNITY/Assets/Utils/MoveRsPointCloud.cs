@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MoveRsPointCloud : MonoBehaviour
 {
-    public Camera mainCamera;
+    public Camera MainCamera;
     public float distance = 1.0f;
     Vector3 startingPoint;
     Vector3 forwardPoint;
