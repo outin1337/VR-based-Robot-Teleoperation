@@ -48,8 +48,8 @@ public class UIManager : MonoBehaviour
         rotate_image = RotateMode.GetComponent<Image>();
         move_image = MoveMode.GetComponent<Image>();
 
-        GameObject VRController = ui.transform.Find("Overlay/VR_Controller").gameObject;
-        GameObject ModeText = ui.transform.Find("Overlay/Mode").gameObject;
+        GameObject VRController = ui.transform.Find("Global/Status/VR_Controller").gameObject;
+        GameObject ModeText = ui.transform.Find("Global/Status/Mode").gameObject;
 
         VR_Controller = VRController.GetComponent<Image>();
         Mode_text = ModeText.GetComponent<TMPro.TextMeshProUGUI>();
@@ -71,8 +71,7 @@ public class UIManager : MonoBehaviour
 
         if (menuButton.GetStateDown(handType) || Input.GetKeyDown(KeyCode.Escape))
         {
-            settings.SetActive(!UIOpen);
-            UIOpen = !UIOpen;
+            Toggle();
         }
 
         if (UIOpen)
@@ -156,5 +155,11 @@ public class UIManager : MonoBehaviour
     public void ClickMove()
     {
         setOption(Option.MOVEMODE);
+    }
+
+    public void Toggle()
+    {
+        settings.SetActive(!UIOpen);
+        UIOpen = !UIOpen;
     }
 }
