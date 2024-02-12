@@ -48,8 +48,8 @@ public class UIManager : MonoBehaviour
         rotate_image = RotateMode.GetComponent<Image>();
         move_image = MoveMode.GetComponent<Image>();
 
-        GameObject VRController = ui.transform.Find("Global/Status/VR_Controller").gameObject;
-        GameObject ModeText = ui.transform.Find("Global/Status/Mode").gameObject;
+        GameObject VRController = ui.transform.Find("Status/VR_Controller").gameObject;
+        GameObject ModeText = ui.transform.Find("Status/Mode").gameObject;
 
         VR_Controller = VRController.GetComponent<Image>();
         Mode_text = ModeText.GetComponent<TMPro.TextMeshProUGUI>();
