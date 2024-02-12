@@ -1,0 +1,90 @@
+Shader "Custom/PointCloudGeomStereo" {
+    Properties {
+        [NoScaleOffset]_MainTex ("Texture", 2D) = "white" {}
+        [NoScaleOffset]_UVMap ("UV", 2D) = "white" {}
+        _PointSize("Point Size", Float) = 4.0
+        _Color ("PointCloud Color", Color) = (1, 1, 1, 1)
+        [Toggle(USE_DISTANCE)]_UseDistance ("Scale by distance?", float) = 0
+    }
+
+    SubShader {
+        Tags { "RenderType"="Opaque" }
+        Cull Off
+        Pass {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma geometry geom
+            #pragma fragment frag
+            #pragma shader_feature USE_DISTANCE
+            #include "UnityCG.cginc"
+
+            struct appdata {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct v2f {
+                float4 vertex : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            float _PointSize;
+            fixed4 _Color;
+
+            sampler2D _MainTex;
+            float4 _MainTex_TexelSize;
+
+            sampler2D _UVMap;
+            float4 _UVMap_TexelSize;
+
+            struct g2f {
+                float4 vertex : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            [maxvertexcount(4)]
+            void geom(point v2f i[1], inout TriangleStream<g2f> triStream) {
+                g2f o;
+                float4 v = i[0].vertex;
+                float2 uv = i[0].uv;
+                float2 p = _PointSize * _ScreenParams.zw * 0.5;
+
+                // Adjust for VR stereo rendering
+                UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i[0].vertex);
+
+                float4 offsets[4] = {
+                    float4(-p.x, p.y, 0, 0),
+                    float4(-p.x, -p.y, 0, 0),
+                    float4(p.x, p.y, 0, 0),
+                    float4(p.x, -p.y, 0, 0)
+                };
+
+                for (int j = 0; j < 4; ++j) {
+                    #ifdef USE_DISTANCE
+                    o.vertex = UnityObjectToClipPos(v + offsets[j]);
+                    #else
+                    o.vertex = UnityObjectToClipPos(v) + offsets[j] * UnityObjectToClipPos(v).w;
+                    #endif
+                    o.uv = uv;
+                    triStream.Append(o);
+                }
+            }
+
+            v2f vert(appdata v) {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = v.uv;
+                return o;
+            }
+
+            fixed4 frag(g2f i) : SV_Target {
+                float2 uv = tex2D(_UVMap, i.uv);
+                if(any(uv <= 0 || uv >= 1))
+                    discard;
+                uv += 0.5 * _MainTex_TexelSize.xy;
+                return tex2D(_MainTex, uv) * _Color;
+            }
+            ENDCG
+        }
+    }
+}
