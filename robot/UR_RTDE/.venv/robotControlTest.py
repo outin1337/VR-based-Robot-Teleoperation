@@ -59,13 +59,13 @@ def read_msg():
         send_msg()
         rtde_c.waitPeriod(t_start)
 
-    else:
+    '''else:
         if rtde_c.getInverseKinematicsHasSolution(actualTcp):
             rtde_c.servoL(actualTcp, velocity, acceleration, dt, lookahead_time, gain)
         else:
             print("no solution")
             actualTcp = rtde_r.getActualTCPPose()
-        rtde_c.waitPeriod(t_start)
+        rtde_c.waitPeriod(t_start)'''
 
 
 def send_msg():
