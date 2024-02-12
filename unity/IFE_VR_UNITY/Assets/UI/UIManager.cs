@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
+using Robot;
 
 public class UIManager : MonoBehaviour
 {
@@ -19,14 +20,14 @@ public class UIManager : MonoBehaviour
     public static Option selected = Option.FREEMODE;
     private static bool UIOpen = false;
     private GameObject settings;
-
-    public SteamVR_Input_Sources handType; 
-    public SteamVR_Behaviour_Pose controllerPos;
-    private Vector3 currentControllerPos, previousControllerPos, deltaControllerPos;
-    public SteamVR_Action_Boolean menuButton;
-
+    public SteamVR_Input_Sources handType;
+    private SteamVR_Action_Boolean menuButton = SteamVR_Actions.default_InteractUI;
+    public SteamVR_Action_Boolean leftButton;
+    public SteamVR_Action_Boolean rightButton; 
+    public GameObject vrController;
+    private RobotArmUnity robotArmUnity;
+    
     public Sprite Controller_Enabled, Controller_Disabled;
-    private double treshold = 0.5;
 
     private Image free_image, rotate_image, move_image;
     private Image VR_Controller;
@@ -36,10 +37,13 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        robotArmUnity = new RobotArmUnity(vrController);
+        robotArmUnity.TresholdPos = 0.5; 
+
         settings = ui.transform.Find("Settings").gameObject;
         settings.SetActive(UIOpen);
 
-        GameObject title = ui.transform.Find("Settings/Title").gameObject;
+        //GameObject title = ui.transform.Find("Settings/Title").gameObject;
         GameObject FreeMode = ui.transform.Find("Settings/FreeMode").gameObject;
         GameObject RotateMode = ui.transform.Find("Settings/RotateMode").gameObject;
         GameObject MoveMode = ui.transform.Find("Settings/MoveMode").gameObject;
@@ -55,15 +59,6 @@ public class UIManager : MonoBehaviour
         Mode_text = ModeText.GetComponent<TMPro.TextMeshProUGUI>();
 
         VR_Controller.sprite = Controller_Disabled;
-
-        controllerPos = GetComponent<SteamVR_Behaviour_Pose>();
-        controllerExist = controllerPos != null;
-
-        if (controllerExist)
-        {
-            currentControllerPos = controllerPos.transform.position;
-            previousControllerPos = controllerPos.transform.position;
-        }
     }
 
     void Update()
@@ -76,18 +71,13 @@ public class UIManager : MonoBehaviour
 
         if (UIOpen)
         {
-
-            currentControllerPos = controllerExist ? controllerPos.transform.position : Vector3.zero;
-            deltaControllerPos = controllerExist ? currentControllerPos - previousControllerPos : Vector3.zero;
-            
-
-            if (deltaControllerPos.y > treshold || Input.GetKeyDown(KeyCode.UpArrow)) 
+            if (leftButton.GetStateDown(handType) || robotArmUnity.PosVector.y > robotArmUnity.TresholdPos || Input.GetKeyDown(KeyCode.UpArrow)) 
             {
                 MoveOption(-1);
                 ChangeSprite(VR_Controller, Controller_Enabled);
                 
             }
-            else if (deltaControllerPos.y < -treshold || Input.GetKeyDown(KeyCode.DownArrow))
+            else if (rightButton.GetStateDown(handType) || robotArmUnity.PosVector.y < -robotArmUnity.TresholdPos || Input.GetKeyDown(KeyCode.DownArrow))
             {
                 MoveOption(1);
                 ChangeSprite(VR_Controller, Controller_Enabled);
@@ -118,8 +108,6 @@ public class UIManager : MonoBehaviour
                 move_image.color = Color.white;
                 Mode_text.text = "MoveMode";
             }
-
-            previousControllerPos = controllerExist ? controllerPos.transform.position : Vector3.zero;
         }
     }
     
@@ -132,7 +120,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void setOption(Option option)
+    void SetOption(Option option)
     {
         selected = option;
     }
@@ -144,22 +132,27 @@ public class UIManager : MonoBehaviour
 
     public void ClickFree()
     {
-        setOption(Option.FREEMODE);
+        SetOption(Option.FREEMODE);
     }
 
     public void ClickRotate()
     {
-        setOption(Option.ROTATEMODE);
+        SetOption(Option.ROTATEMODE);
     }
 
     public void ClickMove()
     {
-        setOption(Option.MOVEMODE);
+        SetOption(Option.MOVEMODE);
     }
 
     public void Toggle()
     {
         settings.SetActive(!UIOpen);
         UIOpen = !UIOpen;
+    }
+
+    public static Option GetOption()
+    {
+        return selected;
     }
 }

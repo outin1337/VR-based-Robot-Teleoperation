@@ -65,6 +65,14 @@ public class RsDevice : RsFrameProvider
 
     void OnEnable()
     {
+        // SMALL fix to slow loading if no camera is connected
+        Context ctx = new Context();
+        var list = ctx.QueryDevices();
+        if (list.Count == 0)
+        { 
+            Debug.Log("No camera is connected : RsDevice");
+            return;
+        }
         m_pipeline = new Pipeline();
 
         using (var cfg = DeviceConfiguration.ToPipelineConfig())
