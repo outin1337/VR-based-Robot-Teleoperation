@@ -64,7 +64,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
 
-        if (menuButton.GetStateDown(handType) || Input.GetKeyDown(KeyCode.Escape))
+        if (/*menuButton.GetStateDown(handType) ||*/ Input.GetKeyDown(KeyCode.Escape))
         {
             Toggle();
         }

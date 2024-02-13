@@ -35,6 +35,8 @@ namespace Robot
 
         }
 
+        public bool BoolSocket => boolSocket;
+
 
         public bool clientPending()
         {
@@ -76,7 +78,7 @@ namespace Robot
         {
             byte[] buffer = new byte[1024];
             int bytesRead;
-            var timeoutMilliseconds = 1000;
+            var timeoutMilliseconds = 10000;
             using var cancellationTokenSource = new CancellationTokenSource();
 
             try
@@ -90,6 +92,7 @@ namespace Robot
                 if (completedTask == timeoutTask)
                 {
                     cancellationTokenSource.Cancel();
+                    Debug.Log("Read from client timed out");
                 }
                 else
                 {

@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
-using Valve.VR;
+using Debug = UnityEngine.Debug;
 
 
 namespace Robot
@@ -16,10 +15,12 @@ namespace Robot
         private bool isAsyncTaskRunning;
         private bool startTransmittingData;
         private int gripperButton = -1;
+        private Stopwatch stopwatch;
 
         // Start is called before the first frame update
         void Start()
         {
+             stopwatch= new Stopwatch();
             robotArmUnity = new RobotArmUnity(rightController);
             networkManager = new Socket_robot_arm();
 
@@ -29,12 +30,13 @@ namespace Robot
         // Update is called once per frame
         async void Update()
         {
+            stopwatch.Restart();
             if (robotArmUnity.grabPinchButtonPressed())
             {
                 gripperButton *= -1;
             }
 
-            if (robotArmUnity.gripButtonPressed())
+            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket)
             {
                 robotArmUnity.UpdateRobotPose();
                 startTransmittingData = true;
@@ -44,15 +46,19 @@ namespace Robot
                 robotArmUnity.PosVector = Vector3.zero;
             }
             
-            if (!isAsyncTaskRunning && startTransmittingData)
+            if (!isAsyncTaskRunning && startTransmittingData && networkManager.BoolSocket)
             {
                 isAsyncTaskRunning = true;
+                //networkManager.SendMessageToClient(robotArmUnity.PosVector, robotArmUnity.AxisVector, gripperButton);
                 if (await networkManager.ReadMessageFromClientAsync() == "ready")
                 { 
                     networkManager.SendMessageToClient(robotArmUnity.PosVector, robotArmUnity.AxisVector, gripperButton);
                 }
                 isAsyncTaskRunning = false;
             }
+            
+            var time =  stopwatch.Elapsed;
+            //Debug.Log($"Time elapsed for this update: {time}");
         }
         
         private void OnApplicationQuit()
