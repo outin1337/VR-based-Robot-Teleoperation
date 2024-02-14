@@ -22,7 +22,8 @@ public class RsPointCloudRenderer : MonoBehaviour
     
     public bool freezePointCloud;
     public Material PointCloudMat;
-    private Material frozenMaterial = null;
+    private Material frozenMaterial;
+    private Mesh frozenMesh;
 
     void Start()
     {
@@ -182,23 +183,28 @@ public class RsPointCloudRenderer : MonoBehaviour
         }
     }
 
-    private int count = 0;
+    private int count;
     public void Freeze()
     {
         if (freezePointCloud && count == 0)
         {
             frozenMaterial = new Material(PointCloudMat);
-            if (PointCloudMat.HasProperty("_MainTex") && PointCloudMat.HasProperty("_UVMap"))
+            if (PointCloudMat.HasProperty("_MainTex"))
             {
                 Texture2D texture = PointCloudMat.GetTexture("_MainTex") as Texture2D;
-                Texture2D UV = PointCloudMat.GetTexture("_UVMap") as Texture2D;
                 Texture2D frozenTexture = new Texture2D(texture.width, texture.height, texture.format, texture.mipmapCount > 1);
-                Texture2D frozenUVMap = new Texture2D(UV.width, UV.height, UV.format, UV.mipmapCount > 1);
                 Graphics.CopyTexture(texture, frozenTexture);
-                Graphics.CopyTexture(UV,frozenUVMap);
                 frozenMaterial.SetTexture("_MainTex", frozenTexture);
-                frozenMaterial.SetTexture("_UVMap", frozenUVMap);
             }
+            
+            frozenMesh = new Mesh();
+            frozenMesh.vertices = mesh.vertices;
+            frozenMesh.normals = mesh.normals;
+            frozenMesh.uv = mesh.uv;
+            frozenMesh.colors = mesh.colors;
+            frozenMesh.triangles = mesh.triangles;
+            
+            GetComponent<MeshFilter>().sharedMesh = frozenMesh;
             GetComponent<MeshRenderer>().material = frozenMaterial;
             count++;
         }
@@ -208,6 +214,7 @@ public class RsPointCloudRenderer : MonoBehaviour
     {
         if (count > 0)
         {
+            GetComponent<MeshFilter>().sharedMesh = mesh;
             GetComponent<MeshRenderer>().material = PointCloudMat;
             count = 0;
         }
