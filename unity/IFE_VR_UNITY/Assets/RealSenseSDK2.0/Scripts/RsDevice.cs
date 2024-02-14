@@ -63,11 +63,12 @@ public class RsDevice : RsFrameProvider
     private readonly AutoResetEvent stopEvent = new AutoResetEvent(false);
     private Pipeline m_pipeline;
 
+    private static DeviceList list;
     void OnEnable()
     {
         // SMALL fix to slow loading if no camera is connected
         Context ctx = new Context();
-        var list = ctx.QueryDevices();
+        list = ctx.QueryDevices();
         if (list.Count == 0)
         { 
             Debug.Log("No camera is connected : RsDevice");
@@ -89,6 +90,11 @@ public class RsDevice : RsFrameProvider
         }
 
         StartCoroutine(WaitAndStart());
+    }
+
+    public static bool HasCamera()
+    {
+        return list.Count > 0;
     }
 
     IEnumerator WaitAndStart()

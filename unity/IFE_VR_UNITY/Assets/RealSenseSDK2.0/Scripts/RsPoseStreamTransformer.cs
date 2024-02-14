@@ -19,7 +19,8 @@ public class RsPoseStreamTransformer : MonoBehaviour
         public int tracker_confidence;
         public int mapper_confidence;
     }
-    RsPose pose = new RsPose();
+
+    private RsPose pose = new RsPose();
 
 
     public RsFrameProvider Source;
@@ -81,14 +82,15 @@ public class RsPoseStreamTransformer : MonoBehaviour
                     // Convert T265 coordinate system to Unity's
                     // see https://realsense.intel.com/how-to-getting-imu-data-from-d435i-and-t265/
 
-                    var t = pose.translation;
-                    t.Set(t.x, t.y, -t.z);
+                    //var t = pose.translation;
+                    //t.Set(t.x, t.y, -t.z);
 
                     var e = pose.rotation.eulerAngles;
                     var r = Quaternion.Euler(-e.x, -e.y, e.z);
-
-                    transform.localRotation = r;
-                    transform.localPosition = t;
+                    
+                    Debug.Log(e);
+                    //transform.localRotation = r;
+                    //transform.localPosition = t;
                 }
 
         }

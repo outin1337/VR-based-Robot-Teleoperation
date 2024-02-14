@@ -19,6 +19,10 @@ public class RsPointCloudRenderer : MonoBehaviour
     private Vector3[] vertices;
 
     FrameQueue q;
+    
+    public bool freezePointCloud;
+    public Material PointCloudMat;
+    private Material frozenMaterial = null;
 
     void Start()
     {
@@ -92,6 +96,9 @@ public class RsPointCloudRenderer : MonoBehaviour
 
         if (mesh != null)
             Destroy(null);
+        
+        if (frozenMaterial != null)
+            Destroy(frozenMaterial);
     }
 
     private void Dispose()
@@ -109,37 +116,41 @@ public class RsPointCloudRenderer : MonoBehaviour
     {
         if (q == null)
             return;
-        try
+        if (!freezePointCloud)
         {
-            if (frame.IsComposite)
+            try
             {
-                using (var fs = frame.As<FrameSet>())
-                using (var points = fs.FirstOrDefault<Points>(Stream.Depth, Format.Xyz32f))
+                if (frame.IsComposite)
                 {
-                    if (points != null)
+                    using (var fs = frame.As<FrameSet>())
+                    using (var points = fs.FirstOrDefault<Points>(Stream.Depth, Format.Xyz32f))
                     {
-                        q.Enqueue(points);
+                        if (points != null)
+                        {
+                            q.Enqueue(points);
+                        }
                     }
+                    return;
                 }
-                return;
-            }
 
-            if (frame.Is(Extension.Points))
-            {
-                q.Enqueue(frame);
+                if (frame.Is(Extension.Points))
+                {
+                    q.Enqueue(frame);
+                }
             }
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
     }
 
 
     protected void LateUpdate()
     {
-        if (q != null)
+        if (!freezePointCloud && q != null)
         {
+            unFreeze();
             Points points;
             if (q.PollForFrame<Points>(out points))
                 using (points)
@@ -164,6 +175,41 @@ public class RsPointCloudRenderer : MonoBehaviour
                         mesh.UploadMeshData(false);
                     }
                 }
+        }
+        else
+        {
+            Freeze();
+        }
+    }
+
+    private int count = 0;
+    public void Freeze()
+    {
+        if (freezePointCloud && count == 0)
+        {
+            frozenMaterial = new Material(PointCloudMat);
+            if (PointCloudMat.HasProperty("_MainTex") && PointCloudMat.HasProperty("_UVMap"))
+            {
+                Texture2D texture = PointCloudMat.GetTexture("_MainTex") as Texture2D;
+                Texture2D UV = PointCloudMat.GetTexture("_UVMap") as Texture2D;
+                Texture2D frozenTexture = new Texture2D(texture.width, texture.height, texture.format, texture.mipmapCount > 1);
+                Texture2D frozenUVMap = new Texture2D(UV.width, UV.height, UV.format, UV.mipmapCount > 1);
+                Graphics.CopyTexture(texture, frozenTexture);
+                Graphics.CopyTexture(UV,frozenUVMap);
+                frozenMaterial.SetTexture("_MainTex", frozenTexture);
+                frozenMaterial.SetTexture("_UVMap", frozenUVMap);
+            }
+            GetComponent<MeshRenderer>().material = frozenMaterial;
+            count++;
+        }
+    }
+    
+    public void unFreeze()
+    {
+        if (count > 0)
+        {
+            GetComponent<MeshRenderer>().material = PointCloudMat;
+            count = 0;
         }
     }
 }

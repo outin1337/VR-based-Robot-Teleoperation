@@ -124,6 +124,11 @@ public class UIManager : MonoBehaviour
     {
         selected = option;
     }
+    
+    public static Option GetOption()
+    {
+        return selected;
+    }
 
     void ChangeSprite(Image image, Sprite sprite)
     {
@@ -149,10 +154,5 @@ public class UIManager : MonoBehaviour
     {
         settings.SetActive(!UIOpen);
         UIOpen = !UIOpen;
-    }
-
-    public static Option GetOption()
-    {
-        return selected;
     }
 }
