@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
-using Robot;
 
 namespace Robot
 {
@@ -22,19 +21,17 @@ namespace Robot
         }
 
         public static Option selected = Option.FREEMODE;
-        private static bool UIOpen = false;
+        private static bool UIOpen;
         private GameObject settings;
         public SteamVR_Input_Sources handType;
         public SteamVR_Action_Boolean menuButton = SteamVR_Actions.default_Menu;
-        public SteamVR_Action_Boolean leftButton;
-        public SteamVR_Action_Boolean rightButton;
+        public SteamVR_Action_Boolean leftButton, rightButton;
         public GameObject vrController;
         private RobotArmUnity robotArmUnity;
 
         public Sprite Controller_Enabled, Controller_Disabled;
 
-        private Image free_image, rotate_image, move_image;
-        private Image VR_Controller;
+        private Image free_image, rotate_image, move_image, GimbalLockSprite;
         private TMPro.TextMeshProUGUI Mode_text;
         private bool controllerExist;
 
@@ -58,10 +55,10 @@ namespace Robot
             GameObject VRController = ui.transform.Find("Status/VR_Controller").gameObject;
             GameObject ModeText = ui.transform.Find("Status/Mode").gameObject;
 
-            VR_Controller = VRController.GetComponent<Image>();
+            GimbalLockSprite = VRController.GetComponent<Image>();
             Mode_text = ModeText.GetComponent<TMPro.TextMeshProUGUI>();
 
-            VR_Controller.sprite = Controller_Disabled;
+            GimbalLockSprite.sprite = Controller_Disabled;
         }
 
         void Update()
@@ -71,6 +68,15 @@ namespace Robot
             {
                 Toggle();
             }
+            
+            if (GimbalManager.isGimbalLocked)
+            {
+                ChangeSprite(GimbalLockSprite, Controller_Disabled);
+            }
+            else
+            {
+                ChangeSprite(GimbalLockSprite, Controller_Enabled);
+            }
 
             if (UIOpen)
             {
@@ -78,18 +84,12 @@ namespace Robot
                     Input.GetKeyDown(KeyCode.UpArrow))
                 {
                     MoveOption(-1);
-                    ChangeSprite(VR_Controller, Controller_Enabled);
 
                 }
                 else if (rightButton.GetStateDown(handType) || robotArmUnity.PosVector.y < -robotArmUnity.TresholdPos ||
                          Input.GetKeyDown(KeyCode.DownArrow))
                 {
                     MoveOption(1);
-                    ChangeSprite(VR_Controller, Controller_Enabled);
-                }
-                else
-                {
-                    ChangeSprite(VR_Controller, Controller_Disabled);
                 }
 
                 if (selected == Option.FREEMODE)
@@ -119,9 +119,14 @@ namespace Robot
         void MoveOption(int direction)
         {
             int newIndex = (int)selected + direction;
-            if (newIndex >= 0 && newIndex < Enum.GetNames(typeof(Option)).Length)
+            int total = Enum.GetNames(typeof(Option)).Length;
+            if (newIndex >= 0 && newIndex < total)
             {
                 selected = (Option)newIndex;
+            }
+            else
+            {
+                selected = newIndex >= total ? (Option) 0 : (Option)total-1;
             }
         }
 
