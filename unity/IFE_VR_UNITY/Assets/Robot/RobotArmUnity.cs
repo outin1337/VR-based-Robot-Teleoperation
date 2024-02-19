@@ -13,22 +13,21 @@ namespace Robot
         private SteamVR_Behaviour_Pose controllerPose;
         private SteamVR_Input_Sources handType;
         
-        
         public RobotArmUnity(GameObject vrControllerObject)
         {
             this.vrControllerObject = vrControllerObject;
             controllerPose = this.vrControllerObject.GetComponent<SteamVR_Behaviour_Pose>();
             handType = controllerPose.inputSource;
         }
-        
-        
-        private double _tresholdPos  = 0.0;
+
+
+        private double tresholdPos;
         private double TresholdAng { get; set; } = 90;
 
         public double TresholdPos
         {
-            get => _tresholdPos;
-            set => _tresholdPos = value; 
+            get => tresholdPos;
+            set => tresholdPos = value; 
         }
     
         
@@ -52,7 +51,7 @@ namespace Robot
         
        
         private Quaternion rotationToRobot = Quaternion.Euler(-90, 0, 0);
-        private Quaternion xOffsetRotation = Quaternion.Euler(-45, 0, 0);
+        private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private float axisAngle = 0.0f;
         private Vector3 axisVector;
         private Vector3 posVector;
@@ -69,6 +68,8 @@ namespace Robot
         private readonly SteamVR_Action_Boolean grabPinchAction = SteamVR_Actions.default_GrabPinch;
         private readonly SteamVR_Action_Boolean teleportAction = SteamVR_Actions.default_Teleport;
         private readonly SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
+        //private Vector3 axsisAngleTest = new Vector3(0, 3.14f, 0);
+        
 
         private bool oneTimeSetupBool = true;
         
@@ -77,7 +78,9 @@ namespace Robot
 
             if (oneTimeSetupBool)
             {
-                constantControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+                //constantControllerRotation = rotationToRobot * Quaternion.Euler(0, 180, 0);
+                constantControllerRotation =  Quaternion.Euler(0, 180, 0);
+                xOffsetRotation = Quaternion.Euler(controllerPose.transform.rotation.eulerAngles.x, 0, 0);
                 totalControllerRotation = constantControllerRotation;
                 previousControllerRotation = constantControllerRotation;
                 
@@ -87,7 +90,7 @@ namespace Robot
             if (grabGrip.GetStateDown(handType))
             {
                 previousControllerPosition = controllerPose.transform.position;
-                previousControllerRotation = rotationToRobot * controllerPose.transform.localRotation * xOffsetRotation;
+                previousControllerRotation = rotationToRobot * controllerPose.transform.rotation * xOffsetRotation;
             }
 
             
@@ -101,7 +104,7 @@ namespace Robot
             normalizedtotalControllerRotation.ToAngleAxis(out axisAngle, out axisVector); //currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
             axisAngle *= Mathf.Deg2Rad;
             
-            axisVector = axisVector * axisAngle / axisVector.magnitude;
+            axisVector = (axisVector * axisAngle) / axisVector.magnitude;
             posVector = deltaControllerPosition;
             
             
@@ -109,7 +112,7 @@ namespace Robot
             previousControllerRotation = currentControllerRotation;
         }
 
-        public bool teleportButtonPressed()
+        public bool TeleportButtonPressed()
         {
             return teleportAction.GetStateUp(handType);
         }

@@ -78,7 +78,7 @@ namespace Robot
         {
             byte[] buffer = new byte[1024];
             int bytesRead;
-            var timeoutMilliseconds = 10000;
+            var timeoutMilliseconds = 1000000;
             using var cancellationTokenSource = new CancellationTokenSource();
 
             try

@@ -60,7 +60,7 @@ def read_msg():
 
 
         rtde_c.servoL(actualTcp, velocity, acceleration, dt, lookahead_time, gain)
-        send_msg()
+        send_msg("ready")
         rtde_c.waitPeriod(t_start)
 
         #print(actualTcp)
@@ -80,16 +80,16 @@ def read_msg():
             print("no solution")
             actualTcp = rtde_r.getActualTCPPose()
         rtde_c.waitPeriod(t_start)
-        print("test")
-        send_msg()
+        #print("test")
+        send_msg("ready")
 
     count += 1
     avg_time = avg_time + (elapsed_time - avg_time)/count
     #print(f"Time taken:{elapsed_time} seconds")
     #print(f"AVG time taken:{avg_time} seconds")
 
-def send_msg():
-    message = "ready"
+def send_msg(msg):
+    message = msg
     try:
         client_socket.send(message.encode('ascii'))
     except Exception as e:
@@ -99,7 +99,7 @@ def send_msg():
 
 
 def move_home():
-    rtde_c.moveJ([-pi / 2, -pi / 2, -pi / 2, -pi / 2, pi / 2, 0])
+    rtde_c.moveJ([-pi / 2, -pi / 2, -pi / 2, -pi / 2, pi / 2, 0]) #rtde_c.moveJ([-pi / 2, -pi / 2, -pi / 2, -pi / 2, pi / 2, 0]) rtde_c.moveJ([pi / 2, -pi / 2, pi / 2, pi / 2, pi / 2, 0])
 
 
 if __name__ == "__main__":
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     client_socket = connect_to_server()
     actualTcp = rtde_r.getActualTCPPose()
-    send_msg()
+    send_msg("ready")
 
     try:
         while True:
@@ -144,11 +144,13 @@ if __name__ == "__main__":
                 rtde_d.closePopup()
                 rtde_d.closeSafetyPopup()
                 rtde_c.reuploadScript()
+                send_msg("stop")
                 time.sleep(1)
                 move_home()
+                time.sleep(1)
                 actualTcp = rtde_r.getActualTCPPose()
             else:
-                print("test1")
+                #print("test1")
                 read_msg()
     except Exception as e:
         print(f"Error reading message: {str(e)}")

@@ -14,6 +14,7 @@ namespace Robot
         private Socket_robot_arm networkManager;
         private bool isAsyncTaskRunning;
         private bool startTransmittingData;
+        private bool stopPoseUpdate = false;
         private int gripperButton = -1;
         private Stopwatch stopwatch;
 
@@ -36,7 +37,7 @@ namespace Robot
                 gripperButton *= -1;
             }
 
-            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket)
+            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket &&  !stopPoseUpdate)
             {
                 robotArmUnity.UpdateRobotPose();
                 startTransmittingData = true;
@@ -50,10 +51,17 @@ namespace Robot
             {
                 isAsyncTaskRunning = true;
                 //networkManager.SendMessageToClient(robotArmUnity.PosVector, robotArmUnity.AxisVector, gripperButton);
-                if (await networkManager.ReadMessageFromClientAsync() == "ready")
+                var clientmsg = await networkManager.ReadMessageFromClientAsync();
+                if (clientmsg == "ready")
                 { 
                     networkManager.SendMessageToClient(robotArmUnity.PosVector, robotArmUnity.AxisVector, gripperButton);
+                    stopPoseUpdate = false;
                 }
+                else if (clientmsg == "stop")
+                {
+                    stopPoseUpdate = true;
+                }
+                    
                 isAsyncTaskRunning = false;
             }
             
