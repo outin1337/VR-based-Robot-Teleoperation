@@ -8,6 +8,7 @@ public class MoveObjectFront : MonoBehaviour
     public float verticalOffset = 0.0f;
     public bool isLeftQuad = true;
     public bool samePos = false;
+    public bool inverse;
     
     private void Update()
     {
@@ -18,7 +19,10 @@ public class MoveObjectFront : MonoBehaviour
         }
         else
         {
-            transform.rotation = cameraTransform.rotation;
+            if (inverse)
+                transform.rotation = Quaternion.Euler(cameraTransform.rotation.eulerAngles * -1);
+            else
+                transform.rotation = cameraTransform.rotation;
 
             Vector3 offsetDirection = isLeftQuad ? -cameraTransform.right : cameraTransform.right;
 
