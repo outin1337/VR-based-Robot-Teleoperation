@@ -20,9 +20,13 @@ public class MoveObjectFront : MonoBehaviour
         else
         {
             if (inverse)
+            {
                 transform.rotation = Quaternion.Euler(cameraTransform.rotation.eulerAngles * -1);
+            }
             else
+            {
                 transform.rotation = cameraTransform.rotation;
+            }
 
             Vector3 offsetDirection = isLeftQuad ? -cameraTransform.right : cameraTransform.right;
 
