@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
 
@@ -9,14 +10,17 @@ namespace Robot
     public class GimbalManager : MonoBehaviour
     {
         public GameObject ObjCamera2D, ObjPointCloud, MainCamera;
+        public Material pointcloud;
         
         public SteamVR_Input_Sources handType = SteamVR_Input_Sources.RightHand;
         public SteamVR_Action_Boolean gimbalToggle = SteamVR_Actions.default_Teleport;
+        private Image Screen2D;
         public static bool isGimbalLocked = true;
-        private float distance = 2f;
+        private float distance = 0f;
 
         void Start()
         {
+            Screen2D = ObjCamera2D.GetComponent<Image>();
             ObjCamera2D.SetActive(false);
             MovePointCloud();
         }
@@ -36,7 +40,7 @@ namespace Robot
                     // GIMBAL is now locked
                     ObjCamera2D.SetActive(false);
                     ObjPointCloud.SetActive(true);
-
+                    
                     MovePointCloud();
                 }
 

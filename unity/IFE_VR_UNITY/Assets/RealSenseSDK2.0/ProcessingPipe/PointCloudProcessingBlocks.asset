@@ -68,7 +68,7 @@ MonoBehaviour:
   enabled: 1
   visualPreset: 1
   colorScheme: 0
-  histogramEqualization: 1
+  histogramEqualization: 0
   minDist: 0
   maxDist: 6
 --- !u!114 &114340648865021418
