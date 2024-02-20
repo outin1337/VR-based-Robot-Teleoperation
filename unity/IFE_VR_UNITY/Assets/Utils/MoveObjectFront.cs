@@ -4,11 +4,9 @@ public class MoveObjectFront : MonoBehaviour
 {
     public Camera mainCamera;
     public float distanceFromCamera = 0.0f;
-    public float horizontalOffset = 0.0f;
-    public float verticalOffset = 0.0f;
-    public bool isLeftQuad = true;
+    public Vector3 posOffset;
+    public Vector3 rotOffset;
     public bool samePos = false;
-    public bool inverse;
     
     private void Update()
     {
@@ -19,21 +17,11 @@ public class MoveObjectFront : MonoBehaviour
         }
         else
         {
-            if (inverse)
-            {
-                transform.rotation = Quaternion.Euler(cameraTransform.rotation.eulerAngles * -1);
-            }
-            else
-            {
-                transform.rotation = cameraTransform.rotation;
-            }
+            Quaternion rotationOffsetQuaternion = Quaternion.Euler(rotOffset);
+            transform.rotation = cameraTransform.rotation * rotationOffsetQuaternion;
 
-            Vector3 offsetDirection = isLeftQuad ? -cameraTransform.right : cameraTransform.right;
-
-            transform.position = cameraTransform.position
-                                 + cameraTransform.forward * distanceFromCamera
-                                 + offsetDirection * horizontalOffset
-                                 + cameraTransform.up * verticalOffset;
+            transform.position = cameraTransform.position + posOffset
+                                                          + cameraTransform.forward * distanceFromCamera;
         }
     }
 }
