@@ -9,51 +9,35 @@ namespace Robot
 {
     public class GimbalManager : MonoBehaviour
     {
-        public GameObject ObjCamera2D, ObjPointCloud, MainCamera;
-        public Material pointcloud;
-        
-        public SteamVR_Input_Sources handType = SteamVR_Input_Sources.RightHand;
-        public SteamVR_Action_Boolean gimbalToggle = SteamVR_Actions.default_Teleport;
-        private Image Screen2D;
+        public GameObject ObjPointCloud, MainCamera;
         public static bool isGimbalLocked = true;
-        private float distance = 0f;
+        public float distance = 0f;
+        
+        private SteamVR_Input_Sources handType = SteamVR_Input_Sources.RightHand;
+        private SteamVR_Action_Boolean gimbalToggle = SteamVR_Actions.default_Teleport;
 
         void Start()
         {
-            Screen2D = ObjCamera2D.GetComponent<Image>();
-            ObjCamera2D.SetActive(false);
             MovePointCloud();
         }
 
         void Update()
         {
+            if (!isGimbalLocked)
+                MovePointCloud();
+            
             if (gimbalToggle.GetStateDown(handType) || Input.GetKeyDown(KeyCode.Space))
-            {
-                if (isGimbalLocked)
-                {
-                    // GIMBAL is now no longer locked
-                    ObjCamera2D.SetActive(true);
-                    ObjPointCloud.SetActive(false);
-                }
-                else
-                {
-                    // GIMBAL is now locked
-                    ObjCamera2D.SetActive(false);
-                    ObjPointCloud.SetActive(true);
-                    
-                    MovePointCloud();
-                }
-
                 isGimbalLocked = !isGimbalLocked;
-            }
         }
 
         void MovePointCloud()
         {
             float cameraYaw = MainCamera.transform.eulerAngles.y;
-            Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0,
-                Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
-            ObjPointCloud.transform.position = MainCamera.transform.position + forwardDirection * distance;
+            if (distance != 0f)
+                Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0, Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
+                ObjPointCloud.transform.position = MainCamera.transform.position + forwardDirection * distance;
+            else
+                ObjPointCloud.transform.position = MainCamera.transform.position;
 
             Quaternion yawOnlyRotation = Quaternion.Euler(0, cameraYaw, 0);
             ObjPointCloud.transform.rotation = yawOnlyRotation;
