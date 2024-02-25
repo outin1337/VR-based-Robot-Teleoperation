@@ -21,12 +21,12 @@ namespace Robot
         }
 
         public static Option selected = Option.FREEMODE;
-        private static bool UIOpen;
+        public static bool UIOpen;
         private GameObject settings;
         public SteamVR_Input_Sources handType;
         public SteamVR_Action_Boolean menuButton = SteamVR_Actions.default_Menu;
         public SteamVR_Action_Boolean leftButton, rightButton;
-        public GameObject vrController;
+        public GameObject vrController, MainCamera;
         private RobotArmUnity robotArmUnity;
 
         public Sprite Controller_Enabled, Controller_Disabled;
@@ -67,6 +67,9 @@ namespace Robot
             if (menuButton.GetStateUp(handType) || Input.GetKeyDown(KeyCode.Escape))
             {
                 Toggle();
+
+                if (UIOpen)
+                    MoveObject(settings);
             }
             
             if (GimbalManager.isGimbalLocked)
@@ -164,6 +167,18 @@ namespace Robot
         {
             settings.SetActive(!UIOpen);
             UIOpen = !UIOpen;
+        }
+        
+        void MoveObject(GameObject obj)
+        {
+            float cameraYaw = MainCamera.transform.eulerAngles.y;
+
+            Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0,
+                Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
+            obj.transform.position = MainCamera.transform.position + forwardDirection * 0.5f;
+
+            Quaternion yawOnlyRotation = Quaternion.Euler(0, cameraYaw, 0);
+            obj.transform.rotation = yawOnlyRotation;
         }
     }
 }
