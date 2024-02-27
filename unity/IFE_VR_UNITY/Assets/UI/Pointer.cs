@@ -47,16 +47,17 @@ namespace Robot
 
             foreach (var result in results)
             {
-                if (result.gameObject.CompareTag("Btn"))
+                GameObject obj = result.gameObject;
+                if (obj.CompareTag("Btn")) 
                 {
-                    GameObject obj = result.gameObject;
-                    if(UIManager.UIOpen && (m_ClickAction.GetStateDown(m_TargetSource) || Input.GetKeyDown(KeyCode.Space)))
+                    if (UIManager.UIOpen && (m_ClickAction.GetStateDown(m_TargetSource) || Input.GetKeyDown(KeyCode.Space)))
                         Click(obj, pointerData);
                     
-                    Focus(obj, pointerData);
-                    UnFocus(obj, pointerData);
+                    Focus(obj, pointerData); 
+                    //UnFocus(obj, pointerData);
 
                 }
+
                 endPosition = camera.transform.position + camera.transform.forward * result.distance;
             }
 
@@ -76,7 +77,7 @@ namespace Robot
         async Task UnFocus(GameObject obj, PointerEventData pointerData)
         {
             await Task.Delay(100);
-            ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerEnterHandler);
+            ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerExitHandler);
         }
     }
 }
