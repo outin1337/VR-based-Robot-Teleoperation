@@ -46,8 +46,8 @@ public class OrbitCameraControl : MonoBehaviour
 
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
 
-        if (EventSystem.current && EventSystem.current.IsPointerOverGameObject())
-            return;
+        //if (EventSystem.current && EventSystem.current.IsPointerOverGameObject()) //  COMMENTED TEMP bcs of VR UI testing
+        //    return;
 
         var currMousePosition = Input.mousePosition;
         var diff = currMousePosition - prevMousePosition;

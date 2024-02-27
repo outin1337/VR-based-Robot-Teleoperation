@@ -2,49 +2,65 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
+using Valve.VR;
 
-public class Pointer : MonoBehaviour
+namespace Robot
 {
-    public float length = 5.0f;
-    public GameObject m_Dot;
-    public VRInputModule m_InputModule;
-
-    private GameObject parent;
-    private LineRenderer m_LineRenderer = null;
-    private void Awake()
+    public class Pointer : MonoBehaviour
     {
-        parent = transform.parent.gameObject;
-        m_LineRenderer = GetComponent<LineRenderer>();
-    }
+        public float length = 5.0f;
+        public GameObject m_Dot;
+        public Camera camera;
+        public SteamVR_Input_Sources m_TargetSource;
+        public SteamVR_Action_Boolean m_ClickAction;
 
-    void Update()
-    {
-        UpdateLine();
-    }
+        private LineRenderer m_LineRenderer = null;
 
-    void UpdateLine()
-    {
-        float targetLength = length;
+        private void Awake()
+        {
+            m_LineRenderer = GetComponent<LineRenderer>();
+        }
 
-        RaycastHit hit = CreateRaycast(targetLength);
-        Vector3 endPosition = parent.transform.position + parent.transform.forward * targetLength;
+        void Update()
+        {
+            UpdateLine();
+        }
 
-        if (hit.collider != null)
-            endPosition = hit.point;
+        void UpdateLine()
+        {
+            float targetLength = length;
 
-        m_Dot.transform.position = endPosition;
-        
-        m_LineRenderer.SetPosition(0, parent.transform.position);
-        m_LineRenderer.SetPosition(1, endPosition);
-    }
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = new Vector2(camera.pixelWidth / 2, camera.pixelHeight / 2)
+            };
+            
+            Vector3 endPosition = camera.transform.position + camera.transform.forward * targetLength;
 
-    RaycastHit CreateRaycast(float length)
-    {
-        RaycastHit hit;
-        Ray ray = new Ray(parent.transform.position, parent.transform.forward);
-        Physics.Raycast(ray, out hit, length);
-        
-        return hit;
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (var result in results)
+            {
+                if (result.gameObject.CompareTag("Btn"))
+                {
+                    GameObject obj = result.gameObject;
+                    if(UIManager.UIOpen && (m_ClickAction.GetStateDown(m_TargetSource) || Input.GetKeyDown(KeyCode.Space)))
+                        ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerClickHandler);
+                    else
+                        ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerEnterHandler);
+                        
+                }
+                endPosition = camera.transform.position + camera.transform.forward * result.distance;
+            }
+
+            m_Dot.transform.position = endPosition;
+            m_LineRenderer.SetPosition(0, camera.transform.position);
+            m_LineRenderer.SetPosition(1, endPosition);
+        }
     }
 }

@@ -27,19 +27,15 @@ namespace Robot
         public SteamVR_Action_Boolean menuButton = SteamVR_Actions.default_Menu;
         public SteamVR_Action_Boolean leftButton, rightButton;
         public GameObject vrController, MainCamera;
-        private RobotArmUnity robotArmUnity;
-
         public Sprite Controller_Enabled, Controller_Disabled;
-
+        public GameObject UIPointer;
+        
         private Image free_image, rotate_image, move_image, GimbalLockSprite;
         private TMPro.TextMeshProUGUI Mode_text;
         private bool controllerExist;
 
         void Start()
         {
-            robotArmUnity = new RobotArmUnity(vrController);
-            robotArmUnity.TresholdPos = 0.5;
-
             settings = ui.transform.Find("Settings").gameObject;
             settings.SetActive(UIOpen);
 
@@ -63,7 +59,7 @@ namespace Robot
 
         void Update()
         {
-
+            
             if (menuButton.GetStateUp(handType) || Input.GetKeyDown(KeyCode.Escape))
             {
                 Toggle();
@@ -80,17 +76,16 @@ namespace Robot
             {
                 ChangeSprite(GimbalLockSprite, Controller_Enabled);
             }
-
+            
+            UIPointer.SetActive(UIOpen);
             if (UIOpen)
             {
-                if (leftButton.GetStateDown(handType) || robotArmUnity.PosVector.y > robotArmUnity.TresholdPos ||
-                    Input.GetKeyDown(KeyCode.UpArrow))
+                if (leftButton.GetStateDown(handType) || Input.GetKeyDown(KeyCode.UpArrow))
                 {
                     MoveOption(-1);
 
                 }
-                else if (rightButton.GetStateDown(handType) || robotArmUnity.PosVector.y < -robotArmUnity.TresholdPos ||
-                         Input.GetKeyDown(KeyCode.DownArrow))
+                else if (rightButton.GetStateDown(handType) || Input.GetKeyDown(KeyCode.DownArrow))
                 {
                     MoveOption(1);
                 }

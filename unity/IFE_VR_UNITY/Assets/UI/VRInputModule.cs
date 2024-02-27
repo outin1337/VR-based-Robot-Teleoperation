@@ -1,13 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using Valve.VR;
 
-public class VRInputModule : BaseInputModule
+public class VRInputModule : MonoBehaviour
 {
     public Camera m_Camera;
     public SteamVR_Input_Sources m_TargetSource;
@@ -16,28 +16,50 @@ public class VRInputModule : BaseInputModule
     private GameObject m_CurrentObject;
     private PointerEventData m_Data;
 
-    protected override void Awake()
+    protected void Awake()
     {
-        base.Awake();
-
-        m_Data = new PointerEventData(eventSystem);
+        m_Data = new PointerEventData(EventSystem.current);
     }
 
-    public override void Process()
+    private void Update()
     {
+        Process();
+    }
+
+    public void Process()
+    {
+        /*
         m_Data.Reset();
         m_Data.position = new Vector2(m_Camera.pixelWidth/2, m_Camera.pixelHeight/2);
         
         eventSystem.RaycastAll(m_Data, m_RaycastResultCache);
+        
         m_Data.pointerCurrentRaycast = FindFirstRaycast(m_RaycastResultCache);
         m_CurrentObject = m_Data.pointerCurrentRaycast.gameObject;
         
         m_RaycastResultCache.Clear();
         
         HandlePointerExitAndEnter(m_Data, m_CurrentObject);
+        */
         
-        if(/*m_ClickAction.GetStateDown(m_TargetSource) ||*/ Input.GetKey(KeyCode.T))
-            ProcessPress(m_Data);
+        if ( /*m_ClickAction.GetStateDown(m_TargetSource) ||*/ Input.GetKey(KeyCode.T))
+        {
+            m_Data.Reset();
+            m_Data.position = new Vector2(m_Camera.pixelWidth/2, m_Camera.pixelHeight/2);
+            var results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(m_Data, results);
+
+            foreach (RaycastResult result in results)
+            {
+                print(result.gameObject.name);
+                if (result.gameObject.GetComponent<Button>() != null)
+                {
+                    result.gameObject.GetComponent<Button>().onClick.Invoke();
+                    break;
+                }
+            }
+        }
+            //ProcessPress(m_Data);
         
         /*
         if(m_ClickAction.GetStateUp(m_TargetSource))
