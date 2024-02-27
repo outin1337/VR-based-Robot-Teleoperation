@@ -32,12 +32,12 @@ namespace Robot
         async void Update()
         {
             stopwatch.Restart();
-            if (robotArmUnity.grabPinchButtonPressed())
+            if (robotArmUnity.grabPinchButtonPressed() && !UIManager.UIOpen)
             {
                 gripperButton *= -1;
             }
 
-            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket &&  !stopPoseUpdate)
+            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket && !stopPoseUpdate && !UIManager.UIOpen)
             {
                 robotArmUnity.UpdateRobotPose();
                 startTransmittingData = true;
