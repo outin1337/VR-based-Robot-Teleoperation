@@ -45,12 +45,13 @@ namespace Robot
             totalControllerRotation, 
             constantControllerRotation, 
             normalizedtotalControllerRotation;
-        
-        
-        
-        
-       
-        private Quaternion rotationToRobot = Quaternion.Euler(-90, 0, 0);
+
+
+
+
+
+        //private Quaternion rotationToRobot = Quaternion.Euler(-90, 0, 0);// * Quaternion.Euler(0,0,90);
+        private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private float axisAngle = 0.0f;
         private Vector3 axisVector;
@@ -90,15 +91,15 @@ namespace Robot
             if (grabGrip.GetStateDown(handType))
             {
                 previousControllerPosition = controllerPose.transform.position;
-                previousControllerRotation = rotationToRobot * controllerPose.transform.rotation * xOffsetRotation;
+                previousControllerRotation = controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
             }
 
             
             currentControllerPosition = controllerPose.transform.position;
             deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
-            currentControllerRotation = rotationToRobot * controllerPose.transform.rotation * xOffsetRotation;
-            diffControllerRotation = Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
+            currentControllerRotation =  controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
+            diffControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
             totalControllerRotation *= diffControllerRotation;
             normalizedtotalControllerRotation = totalControllerRotation.normalized;
             normalizedtotalControllerRotation.ToAngleAxis(out axisAngle, out axisVector); //currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);

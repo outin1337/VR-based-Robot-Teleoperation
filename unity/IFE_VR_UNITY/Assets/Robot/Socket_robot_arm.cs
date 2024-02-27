@@ -13,7 +13,7 @@ namespace Robot
     public class Socket_robot_arm
     {
         private IPAddress robotIP = IPAddress.Parse("158.39.163.5");
-        private int port = 30002;
+        private int port = 30010;
         private TcpListener tcpListener;
         private TcpClient connectedClient;
         private NetworkStream networkStream;

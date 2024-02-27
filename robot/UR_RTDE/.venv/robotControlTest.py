@@ -3,6 +3,7 @@ import socket
 import numpy as np
 import rtde_control
 import rtde_receive
+import script_client as rtde_script
 import dashboard_client as rtde_dashboard
 import robotiq_gripper
 import time
@@ -12,11 +13,11 @@ import time
 
 
 pi = np.pi
-ip = "158.39.162.177" #158.39.162.177""10.1.1.5"
+ip = "10.1.1.5" #158.39.162.177""10.1.1.5"
 
 def connect_to_server():
     robot_ip = "158.39.163.5"
-    port = 30002
+    port = 30010
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((robot_ip, port))
     client_socket.settimeout(10.0)
@@ -32,7 +33,6 @@ def read_msg():
 
     time_start = time.perf_counter()
     data = client_socket.recv(1024)
-    print("test2")
     elapsed_time = time.perf_counter() - time_start
     if data:
 
@@ -43,8 +43,8 @@ def read_msg():
 
         #print(-delta_array[3], -delta_array[5], -delta_array[4])
 
-        actualTcp[0] += delta_array[0] * -1
-        actualTcp[1] += delta_array[2] * -1
+        actualTcp[0] += delta_array[0] #*-1
+        actualTcp[1] += delta_array[2] #*-1
         actualTcp[2] += delta_array[1]
 
         actualTcp[3] = delta_array[3]
@@ -116,6 +116,7 @@ if __name__ == "__main__":
     rtde_c = rtde_control.RTDEControlInterface(ip)
     rtde_r = rtde_receive.RTDEReceiveInterface(ip)
     rtde_d = rtde_dashboard.DashboardClient(ip)
+    #rtde_s = rtde_script.ScriptClient(ip)
     rtde_d.connect()
 
     gripper = robotiq_gripper.RobotiqGripper()
@@ -132,13 +133,8 @@ if __name__ == "__main__":
 
     try:
         while True:
-            '''a = rtde_r.getSafetyMode()
-            print(a)
-            if a != 1:
-                rtde_d.closePopup()
-                rtde_d.closeSafetyPopup()
-                move_home()'''
-            if not rtde_d.running():
+            read_msg()
+            '''if not rtde_d.running():
                 print("Robot moving to safe position")
                 time.sleep(1)
                 rtde_d.closePopup()
@@ -152,6 +148,7 @@ if __name__ == "__main__":
             else:
                 #print("test1")
                 read_msg()
+                #print(rtde_s.getScript())'''
     except Exception as e:
         print(f"Error reading message: {str(e)}")
     except KeyboardInterrupt:
