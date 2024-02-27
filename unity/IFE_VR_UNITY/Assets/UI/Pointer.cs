@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -16,7 +17,7 @@ namespace Robot
         public GameObject m_Dot;
         public Camera camera;
         public SteamVR_Input_Sources m_TargetSource;
-        public SteamVR_Action_Boolean m_ClickAction;
+        private SteamVR_Action_Boolean m_ClickAction = SteamVR_Actions.default_GrabPinch;
 
         private LineRenderer m_LineRenderer = null;
 
@@ -50,10 +51,11 @@ namespace Robot
                 {
                     GameObject obj = result.gameObject;
                     if(UIManager.UIOpen && (m_ClickAction.GetStateDown(m_TargetSource) || Input.GetKeyDown(KeyCode.Space)))
-                        ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerClickHandler);
-                    else
-                        ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerEnterHandler);
-                        
+                        Click(obj, pointerData);
+                    
+                    Focus(obj, pointerData);
+                    UnFocus(obj, pointerData);
+
                 }
                 endPosition = camera.transform.position + camera.transform.forward * result.distance;
             }
@@ -61,6 +63,20 @@ namespace Robot
             m_Dot.transform.position = endPosition;
             m_LineRenderer.SetPosition(0, camera.transform.position);
             m_LineRenderer.SetPosition(1, endPosition);
+        }
+
+        void Click(GameObject obj, PointerEventData pointerData)
+        {
+            ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerClickHandler);
+        }
+        void Focus(GameObject obj, PointerEventData pointerData)
+        {
+            ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerEnterHandler);
+        }
+        async Task UnFocus(GameObject obj, PointerEventData pointerData)
+        {
+            await Task.Delay(100);
+            ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerEnterHandler);
         }
     }
 }
