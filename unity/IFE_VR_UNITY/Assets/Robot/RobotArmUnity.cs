@@ -41,10 +41,15 @@ namespace Robot
             previousControllerRotation;
 
         private Quaternion 
-            diffControllerRotation, 
+            deltaControllerRotation, 
             totalControllerRotation, 
-            constantControllerRotation, 
-            normalizedtotalControllerRotation;
+            initialControllerRotation, 
+            inverseInitalControllerRotation,
+            fixedReferenceControllerRotation,
+            currentRotationLocalRef,
+            prevRotationsGlobalRef,
+            totalRotationsLocalRef,
+            normalizedTotalRotLocalRef;
 
 
 
@@ -80,10 +85,12 @@ namespace Robot
             if (oneTimeSetupBool)
             {
                 //constantControllerRotation = rotationToRobot * Quaternion.Euler(0, 180, 0);
-                constantControllerRotation =  Quaternion.Euler(0, 180, 0);
+                initialControllerRotation =  Quaternion.Euler(0, 180, 0);  //This is based on starting position of robot arm. TODO: make dynamic. 
+                inverseInitalControllerRotation = Quaternion.Inverse(initialControllerRotation);
                 xOffsetRotation = Quaternion.Euler(controllerPose.transform.rotation.eulerAngles.x, 0, 0);
-                totalControllerRotation = constantControllerRotation;
-                previousControllerRotation = constantControllerRotation;
+                totalRotationsLocalRef = initialControllerRotation;
+                previousControllerRotation = initialControllerRotation;
+                
                 
                 oneTimeSetupBool = false;
             }
@@ -98,14 +105,17 @@ namespace Robot
             currentControllerPosition = controllerPose.transform.position;
             deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
-            currentControllerRotation =  controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
-            diffControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
-            totalControllerRotation *= diffControllerRotation;
-            normalizedtotalControllerRotation = totalControllerRotation.normalized;
-            normalizedtotalControllerRotation.ToAngleAxis(out axisAngle, out axisVector); //currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
-            axisAngle *= Mathf.Deg2Rad;
+            currentControllerRotation = controllerPose.transform.rotation * xOffsetRotation  * rotationToRobot;
+            deltaControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation; //Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
+            currentRotationLocalRef = initialControllerRotation * deltaControllerRotation; 
+            prevRotationsGlobalRef = inverseInitalControllerRotation * totalRotationsLocalRef;
+            totalRotationsLocalRef = currentRotationLocalRef * prevRotationsGlobalRef;
+            normalizedTotalRotLocalRef = totalRotationsLocalRef.normalized;
+            normalizedTotalRotLocalRef.ToAngleAxis(out axisAngle, out axisVector); //currentControllerRotation.ToAngleAxis(out axisAngle, out axisVector);
             
+            axisAngle *= Mathf.Deg2Rad;
             axisVector = (axisVector * axisAngle) / axisVector.magnitude;
+            
             posVector = deltaControllerPosition;
             
             

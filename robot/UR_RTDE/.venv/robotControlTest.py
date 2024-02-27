@@ -15,6 +15,8 @@ import time
 pi = np.pi
 ip = "10.1.1.5" #158.39.162.177""10.1.1.5"
 
+xd = True
+
 def connect_to_server():
     robot_ip = "158.39.163.5"
     port = 30010
@@ -26,7 +28,7 @@ def connect_to_server():
 
 
 def read_msg():
-    global actualTcp, count, avg_time
+    global actualTcp, count, avg_time, xd
 
     t_start = rtde_c.initPeriod()
 
@@ -72,6 +74,11 @@ def read_msg():
             actualTcp = rtde_r.getActualTCPPose()
         send_msg()
         rtde_c.waitPeriod(t_start)'''
+        if xd:
+            with open('URScripRTDE.txt', 'w') as file:
+                file.writelines(rtde_s.getScript())
+            xd = False
+
 
     else:
         if rtde_c.getInverseKinematicsHasSolution(actualTcp):
@@ -116,7 +123,7 @@ if __name__ == "__main__":
     rtde_c = rtde_control.RTDEControlInterface(ip)
     rtde_r = rtde_receive.RTDEReceiveInterface(ip)
     rtde_d = rtde_dashboard.DashboardClient(ip)
-    #rtde_s = rtde_script.ScriptClient(ip)
+    rtde_s = rtde_script.ScriptClient(ip, 41,6)
     rtde_d.connect()
 
     gripper = robotiq_gripper.RobotiqGripper()
