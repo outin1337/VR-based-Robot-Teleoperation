@@ -62,8 +62,12 @@ namespace Robot
         private Vector3 axisVector;
         private Vector3 posVector;
         
-        public Vector3 AxisVector => axisVector;
-        
+        public Vector3 AxisVector
+        {
+            get => axisVector;
+            set => axisVector = value;
+        }
+
         public Vector3 PosVector
         {
             get => posVector;
@@ -97,6 +101,7 @@ namespace Robot
 
             if (grabGrip.GetStateDown(handType))
             {
+                xOffsetRotation = Quaternion.Euler(controllerPose.transform.rotation.eulerAngles.x, 0, 0);
                 previousControllerPosition = controllerPose.transform.position;
                 previousControllerRotation = controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
             }
@@ -123,6 +128,11 @@ namespace Robot
             previousControllerRotation = currentControllerRotation;
         }
 
+        public void ResetPose()
+        {
+            oneTimeSetupBool = true;
+        }
+
         public bool TeleportButtonPressed()
         {
             return teleportAction.GetStateUp(handType);
@@ -138,6 +148,10 @@ namespace Robot
         {
             if (grabGrip.GetStateDown(handType)) grabToggle = !grabToggle;
             return grabToggle;
+        }
+        public void SetGripButtonFalse()
+        {
+            grabToggle = false;
         }
     }
 }

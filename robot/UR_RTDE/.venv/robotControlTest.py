@@ -11,24 +11,23 @@ import time
 
 
 
-
+rotation = False
 pi = np.pi
 ip = "10.1.1.5" #158.39.162.177""10.1.1.5"
 
-xd = True
 
 def connect_to_server():
     robot_ip = "158.39.163.5"
     port = 30010
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((robot_ip, port))
-    client_socket.settimeout(10.0)
+    #client_socket.settimeout(30.0)
     print(f"Connected to server at {robot_ip}:{port}")
     return client_socket
 
 
 def read_msg():
-    global actualTcp, count, avg_time, xd
+    global actualTcp, count, avg_time
 
     t_start = rtde_c.initPeriod()
 
@@ -45,13 +44,14 @@ def read_msg():
 
         #print(-delta_array[3], -delta_array[5], -delta_array[4])
 
-        actualTcp[0] += delta_array[0] #*-1
-        actualTcp[1] += delta_array[2] #*-1
-        actualTcp[2] += delta_array[1]
+        actualTcp[0] += delta_array[0] * 1.75 #*-1
+        actualTcp[1] += delta_array[2] * 1.75 #*-1
+        actualTcp[2] += delta_array[1] * 1.75
 
-        actualTcp[3] = delta_array[3]
-        actualTcp[4] = delta_array[4]
-        actualTcp[5] = delta_array[5]
+        if rotation:
+            actualTcp[3] = delta_array[3]
+            actualTcp[4] = delta_array[4]
+            actualTcp[5] = delta_array[5]
 
 
         if int(delta_array[6]) == 1:
@@ -59,7 +59,6 @@ def read_msg():
 
         else:
             gripper.move(0, 255, 255)
-
 
         rtde_c.servoL(actualTcp, velocity, acceleration, dt, lookahead_time, gain)
         send_msg("ready")
@@ -74,21 +73,17 @@ def read_msg():
             actualTcp = rtde_r.getActualTCPPose()
         send_msg()
         rtde_c.waitPeriod(t_start)'''
-        if xd:
-            with open('URScripRTDE.txt', 'w') as file:
-                file.writelines(rtde_s.getScript())
-            xd = False
+
 
 
     else:
-        if rtde_c.getInverseKinematicsHasSolution(actualTcp):
+        '''if rtde_c.getInverseKinematicsHasSolution(actualTcp):
             rtde_c.servoL(actualTcp, velocity, acceleration, dt, lookahead_time, gain)
         else:
             print("no solution")
-            actualTcp = rtde_r.getActualTCPPose()
+            actualTcp = rtde_r.getActualTCPPose()'''
         rtde_c.waitPeriod(t_start)
-        #print("test")
-        send_msg("ready")
+        print("No data")
 
     count += 1
     avg_time = avg_time + (elapsed_time - avg_time)/count
@@ -140,22 +135,20 @@ if __name__ == "__main__":
 
     try:
         while True:
-            read_msg()
-            '''if not rtde_d.running():
+            #read_msg()
+            if not rtde_d.running():
+                time.sleep(2)
+                send_msg("stop")
                 print("Robot moving to safe position")
                 time.sleep(1)
                 rtde_d.closePopup()
                 rtde_d.closeSafetyPopup()
                 rtde_c.reuploadScript()
-                send_msg("stop")
                 time.sleep(1)
                 move_home()
-                time.sleep(1)
                 actualTcp = rtde_r.getActualTCPPose()
             else:
-                #print("test1")
                 read_msg()
-                #print(rtde_s.getScript())'''
     except Exception as e:
         print(f"Error reading message: {str(e)}")
     except KeyboardInterrupt:

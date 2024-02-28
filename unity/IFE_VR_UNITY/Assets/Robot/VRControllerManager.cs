@@ -59,7 +59,10 @@ namespace Robot
                 }
                 else if (clientmsg == "stop")
                 {
+                    robotArmUnity.SetGripButtonFalse();
                     stopPoseUpdate = true;
+                    robotArmUnity.AxisVector = new Vector3(0,3.14f, 0);
+                    robotArmUnity.ResetPose();
                 }
                     
                 isAsyncTaskRunning = false;
