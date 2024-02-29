@@ -13,7 +13,7 @@ Github repo for teleoperated robot arm. Currently, no documentation for the code
 **Do not edit Unity without using version 2021.3.18**
 - SteamVR
 - Intel Realsense Unity
-- UR_RTDE
+- UR_RTDE (use Python 3.10)
 ## Libraries for Raspberry pi
 Nothing to add for now
 ## Robot offline
