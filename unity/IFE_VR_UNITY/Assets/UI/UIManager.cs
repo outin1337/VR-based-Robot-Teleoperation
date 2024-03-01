@@ -90,25 +90,27 @@ namespace Robot
                     MoveOption(1);
                 }
 
+                Color color_highlighted = new Color(57,62,70);
+                Color color_selected = new Color(0,173,181);
                 if (selected == Option.FREEMODE)
                 {
-                    free_image.color = Color.white;
-                    rotate_image.color = Color.gray;
-                    move_image.color = Color.gray;
+                    free_image.color = color_selected;
+                    rotate_image.color = color_highlighted;
+                    move_image.color = color_highlighted;
                     Mode_text.text = "FreeMode";
                 }
                 else if (selected == Option.ROTATEMODE)
                 {
-                    free_image.color = Color.gray;
-                    rotate_image.color = Color.white;
-                    move_image.color = Color.gray;
+                    free_image.color = color_highlighted;
+                    rotate_image.color = color_selected;
+                    move_image.color = color_highlighted;
                     Mode_text.text = "RotateMode";
                 }
                 else if (selected == Option.MOVEMODE)
                 {
-                    free_image.color = Color.gray;
-                    rotate_image.color = Color.gray;
-                    move_image.color = Color.white;
+                    free_image.color = color_highlighted;
+                    rotate_image.color = color_highlighted;
+                    move_image.color = color_selected;
                     Mode_text.text = "MoveMode";
                 }
             }

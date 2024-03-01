@@ -54,7 +54,7 @@ namespace Robot
                         Click(obj, pointerData);
                     
                     Focus(obj, pointerData); 
-                    //UnFocus(obj, pointerData);
+                    UnFocus(obj, pointerData);
 
                 }
 
@@ -74,9 +74,9 @@ namespace Robot
         {
             ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerEnterHandler);
         }
-        async Task UnFocus(GameObject obj, PointerEventData pointerData)
+        void UnFocus(GameObject obj, PointerEventData pointerData)
         {
-            await Task.Delay(100);
+            //await Task.Delay(100);
             ExecuteEvents.Execute(obj, pointerData, ExecuteEvents.pointerExitHandler);
         }
     }
