@@ -20,6 +20,7 @@ namespace Robot
         private SteamVR_Action_Boolean m_ClickAction = SteamVR_Actions.default_GrabPinch;
 
         private LineRenderer m_LineRenderer = null;
+        private HashSet<GameObject> currentTargets = new HashSet<GameObject>();
 
         private void Awake()
         {
@@ -44,22 +45,32 @@ namespace Robot
 
             var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
-
+            
+            HashSet<GameObject> newTargets = new HashSet<GameObject>();
+            
             foreach (var result in results)
             {
                 GameObject obj = result.gameObject;
-                if (obj.CompareTag("Btn")) 
-                {
-                    if (UIManager.UIOpen && (m_ClickAction.GetStateDown(m_TargetSource) || Input.GetKeyDown(KeyCode.Space)))
-                        Click(obj, pointerData);
-                    
-                    Focus(obj, pointerData); 
-                    UnFocus(obj, pointerData);
 
-                }
+                newTargets.Add(obj);
+                if (UIManager.UIOpen && (m_ClickAction.GetStateDown(m_TargetSource) || Input.GetKeyDown(KeyCode.Space)))
+                        Click(obj, pointerData);
+                
+                if (!currentTargets.Contains(obj))
+                    Focus(obj, pointerData);
 
                 endPosition = camera.transform.position + camera.transform.forward * result.distance;
             }
+            
+            foreach (var target in currentTargets)
+            {
+                if (!newTargets.Contains(target))
+                {
+                    UnFocus(target, pointerData);
+                }
+            }
+            
+            currentTargets = newTargets;
 
             m_Dot.transform.position = endPosition;
             m_LineRenderer.SetPosition(0, camera.transform.position);

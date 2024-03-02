@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Raycast_settings : MonoBehaviour
+public class RadialButton : MonoBehaviour
 {
     Image img;
     // Start is called before the first frame update
