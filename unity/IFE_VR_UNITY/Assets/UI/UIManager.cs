@@ -21,6 +21,10 @@ namespace Robot
         }
 
         public static Option selected = Option.FREEMODE;
+        // Locking AXIS
+        public static bool PosX=true,PosY=true,PosZ=true,RotX=true,RotY=true,RotZ=true;
+        [SerializeField]
+        private GameObject X, Y, Z, RX, RY, RZ;
         public static bool UIOpen;
         private GameObject settings;
         public SteamVR_Input_Sources handType;
@@ -39,20 +43,18 @@ namespace Robot
             settings = ui.transform.Find("Settings").gameObject;
             settings.SetActive(UIOpen);
 
-            //GameObject title = ui.transform.Find("Settings/Title").gameObject;
-            GameObject FreeMode = ui.transform.Find("Settings/FreeMode").gameObject;
-            GameObject RotateMode = ui.transform.Find("Settings/RotateMode").gameObject;
-            GameObject MoveMode = ui.transform.Find("Settings/MoveMode").gameObject;
-
-            free_image = FreeMode.GetComponent<Image>();
-            rotate_image = RotateMode.GetComponent<Image>();
-            move_image = MoveMode.GetComponent<Image>();
-
             GameObject VRController = ui.transform.Find("Status/VR_Controller").gameObject;
             GameObject ModeText = ui.transform.Find("Status/Mode").gameObject;
 
             GimbalLockSprite = VRController.GetComponent<Image>();
             Mode_text = ModeText.GetComponent<TMPro.TextMeshProUGUI>();
+
+            SetColor(X,true);
+            SetColor(Y,true);
+            SetColor(Z,true);
+            SetColor(RX,true);
+            SetColor(RY,true);
+            SetColor(RZ,true);
 
             GimbalLockSprite.sprite = Controller_Disabled;
         }
@@ -88,30 +90,6 @@ namespace Robot
                 else if (rightButton.GetStateDown(handType) || Input.GetKeyDown(KeyCode.DownArrow))
                 {
                     MoveOption(1);
-                }
-
-                Color color_highlighted = new Color(57,62,70);
-                Color color_selected = new Color(0,173,181);
-                if (selected == Option.FREEMODE)
-                {
-                    free_image.color = color_selected;
-                    rotate_image.color = color_highlighted;
-                    move_image.color = color_highlighted;
-                    Mode_text.text = "FreeMode";
-                }
-                else if (selected == Option.ROTATEMODE)
-                {
-                    free_image.color = color_highlighted;
-                    rotate_image.color = color_selected;
-                    move_image.color = color_highlighted;
-                    Mode_text.text = "RotateMode";
-                }
-                else if (selected == Option.MOVEMODE)
-                {
-                    free_image.color = color_highlighted;
-                    rotate_image.color = color_highlighted;
-                    move_image.color = color_selected;
-                    Mode_text.text = "MoveMode";
                 }
             }
         }
@@ -159,11 +137,56 @@ namespace Robot
         {
             SetOption(Option.MOVEMODE);
         }
+        
+        Color color_highlighted = new Color(57,62,70);
+        Color color_selected = new Color(0,173,181);
+        private void SetColor(GameObject obj, bool active)
+        {
+            Image image = obj.GetComponent<Image>();
+            if (active)
+                image.color = color_selected;
+            else 
+                image.color = color_highlighted;
+        }
 
         public void Toggle()
         {
             settings.SetActive(!UIOpen);
             UIOpen = !UIOpen;
+        }
+
+        public void ToggleAxis(string axis)
+        {
+            if (axis.Equals('X'))
+            {
+                PosX = !PosX;
+                SetColor(X, PosX);
+            }
+            else if (axis.Equals("Y"))
+            {
+                PosY = !PosY;
+                SetColor(Y,PosY);
+            }
+            else if (axis.Equals("Z"))
+            {
+                PosZ = !PosZ;
+                SetColor(Z,PosZ);
+            }
+            else if (axis.Equals("RX"))
+            {
+                RotX = !RotX;
+                SetColor(RX,RotX);
+            }
+            else if (axis.Equals("RY"))
+            {
+                RotY = !RotY;
+                SetColor(RY,RotY);
+            }
+            else if (axis.Equals("RZ"))
+            {
+                RotZ = !RotZ;
+                SetColor(RZ,RotZ);
+            }
         }
         
         void MoveObject(GameObject obj)

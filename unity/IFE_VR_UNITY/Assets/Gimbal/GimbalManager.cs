@@ -12,6 +12,7 @@ namespace Robot
         public GameObject ObjPointCloud, MainCamera, SettingsUI;
         public static bool isGimbalLocked = true;
         public float distance = 0f;
+        public Vector3 offset;
         
         private SteamVR_Input_Sources handType = SteamVR_Input_Sources.RightHand;
         private SteamVR_Action_Boolean gimbalToggle = SteamVR_Actions.default_Teleport;
@@ -50,11 +51,11 @@ namespace Robot
             if (distance != 0f)
             {
                 Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0, Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
-                obj.transform.position = MainCamera.transform.position + forwardDirection * distance;
+                obj.transform.position = MainCamera.transform.position - offset + forwardDirection * distance;
             }
             else
             {
-                obj.transform.position = MainCamera.transform.position;
+                obj.transform.position = MainCamera.transform.position - offset;
             }
             
             Quaternion yawOnlyRotation = Quaternion.Euler(0, cameraYaw, 0);
