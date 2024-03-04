@@ -34,7 +34,7 @@ public class MousePointer : MonoBehaviour
             {
                 if(obj.CompareTag("Btn"))
                 {
-                    Click(obj, pointerData);
+                    //Click(obj, pointerData);
                     Debug.Log(obj.name);
                 }
             }
@@ -42,7 +42,7 @@ public class MousePointer : MonoBehaviour
             //if (!currentTargets.Contains(obj))
             //    Focus(obj, pointerData);
         }
-
+        
         foreach (var target in currentTargets)
         {
             if (!newTargets.Contains(target))

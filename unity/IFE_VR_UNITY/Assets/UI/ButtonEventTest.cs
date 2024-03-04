@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Robot
 {
@@ -7,9 +9,17 @@ namespace Robot
     {
         public void OnPointerClick(PointerEventData eventData)
         {
-            UIManager.ToggleAxis(gameObject.name);
-
+            //UIManager.ToggleAxis(gameObject.name);
+            EventSystem.current.SetSelectedGameObject(null);
         }
+        
+        public void OnPointerEnter(PointerEventData data)
+        {
+            
+        }
+        
+        public void OnPointerExit(PointerEventData data)
+        {
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
@@ -30,9 +31,10 @@ namespace Robot
         public SteamVR_Input_Sources handType;
         public SteamVR_Action_Boolean menuButton = SteamVR_Actions.default_Menu;
         public SteamVR_Action_Boolean leftButton, rightButton;
-        public GameObject vrController, MainCamera;
+        public Camera pointerCam, MainCamera;
         public Sprite Controller_Enabled, Controller_Disabled;
         public GameObject UIPointer;
+        public Canvas canvas;
         
         private Image free_image, rotate_image, move_image, GimbalLockSprite;
         private TMPro.TextMeshProUGUI Mode_text;
@@ -61,9 +63,13 @@ namespace Robot
 
         void Update()
         {
+            bool menuBtn = menuButton.GetStateUp(handType);
+            bool EscBtn = Input.GetKeyDown(KeyCode.Escape);
             
-            if (menuButton.GetStateUp(handType) || Input.GetKeyDown(KeyCode.Escape))
+            if (menuBtn || EscBtn)
             {
+                canvas.worldCamera = EscBtn ? MainCamera : pointerCam;
+                
                 Toggle();
 
                 if (UIOpen)
@@ -188,7 +194,7 @@ namespace Robot
                 RotZ = !RotZ;
                 SetColor(RZ,RotZ);
             }
-            else if (axis.Equals("Reset"))
+            else if (axis.Equals("RESET"))
             {
                 PosX = true;
                 PosY = true;
@@ -211,7 +217,7 @@ namespace Robot
 
             Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0,
                 Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
-            obj.transform.position = MainCamera.transform.position + forwardDirection * 0.5f;
+            obj.transform.position = MainCamera.transform.position + forwardDirection * 1.5f;
 
             Quaternion yawOnlyRotation = Quaternion.Euler(0, cameraYaw, 0);
             obj.transform.rotation = yawOnlyRotation;
