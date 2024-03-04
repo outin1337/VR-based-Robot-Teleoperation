@@ -1,20 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ButtonEventTest : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+namespace Robot
 {
-    public void OnPointerClick(PointerEventData eventData)
+    public class ButtonEventTest : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
     {
-        Debug.Log(gameObject.name + " clicked.");
-    }
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            UIManager.ToggleAxis(gameObject.name);
 
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        Debug.Log("Pointer entered " + gameObject.name + " area.");
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        Debug.Log("Pointer exited " + gameObject.name + " area.");
+        }
+        }
     }
 }

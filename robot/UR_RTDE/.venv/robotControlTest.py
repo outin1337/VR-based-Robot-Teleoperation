@@ -11,7 +11,7 @@ import time
 
 
 
-rotation = False
+rotation = True
 pi = np.pi
 ip = "10.1.1.5" #158.39.162.177""10.1.1.5"
 
@@ -44,9 +44,9 @@ def read_msg():
 
         #print(-delta_array[3], -delta_array[5], -delta_array[4])
 
-        actualTcp[0] += delta_array[0] * 1.75 #*-1
-        actualTcp[1] += delta_array[2] * 1.75 #*-1
-        actualTcp[2] += delta_array[1] * 1.75
+        actualTcp[0] += delta_array[0] #* 1.75 #*-1
+        actualTcp[1] += delta_array[2] #* 1.75 #*-1
+        actualTcp[2] += delta_array[1] #* 1.75
 
         if rotation:
             actualTcp[3] = delta_array[3]
