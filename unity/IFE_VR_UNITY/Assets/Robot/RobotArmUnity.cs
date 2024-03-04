@@ -58,6 +58,7 @@ namespace Robot
         //private Quaternion rotationToRobot = Quaternion.Euler(-90, 0, 0);// * Quaternion.Euler(0,0,90);
         private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
+        private Quaternion yOffsetRotation = Quaternion.identity;
         private float axisAngle = 0.0f;
         private Vector3 axisVector;
         private Vector3 posVector;
@@ -92,6 +93,7 @@ namespace Robot
                 initialControllerRotation =  Quaternion.Euler(0, 180, 0);  //This is based on starting position of robot arm. TODO: make dynamic. 
                 inverseInitalControllerRotation = Quaternion.Inverse(initialControllerRotation);
                 xOffsetRotation = Quaternion.Euler(controllerPose.transform.rotation.eulerAngles.x, 0, 0);
+                //yOffsetRotation = Quaternion.Euler(0, -controllerPose.transform.rotation.eulerAngles.y ,0);
                 totalRotationsLocalRef = initialControllerRotation;
                 previousControllerRotation = initialControllerRotation;
                 
@@ -106,12 +108,59 @@ namespace Robot
                 previousControllerRotation = controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
             }
 
+       
+
             
             currentControllerPosition = controllerPose.transform.position;
             deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
+            
+
             currentControllerRotation = controllerPose.transform.rotation * xOffsetRotation  * rotationToRobot;
             deltaControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation; //Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
+          
+
+            if (!UIManager.PosX)
+            {
+                deltaControllerPosition.x = 0;
+            }
+
+            if (!UIManager.PosY)
+            {
+                deltaControllerPosition.y = 0;
+            }
+
+            if (!UIManager.PosZ)
+            {
+                deltaControllerPosition.z = 0;
+            }
+
+            Vector3 eulerAngles; 
+            
+            if (!UIManager.RotX)
+            {
+                eulerAngles = deltaControllerRotation.eulerAngles;
+
+                deltaControllerRotation = Quaternion.Euler(0, eulerAngles.y, eulerAngles.z);
+            }
+
+            if (!UIManager.RotY)
+            {
+                eulerAngles = deltaControllerRotation.eulerAngles;
+
+                deltaControllerRotation = Quaternion.Euler(eulerAngles.x, 0, eulerAngles.z);
+            }
+
+            if (!UIManager.RotZ)
+            {
+                eulerAngles = deltaControllerRotation.eulerAngles;
+
+                deltaControllerRotation = Quaternion.Euler(eulerAngles.x, eulerAngles.y, 0);
+            }
+            
+            
+            
+            
             currentRotationLocalRef = initialControllerRotation * deltaControllerRotation; 
             prevRotationsGlobalRef = inverseInitalControllerRotation * totalRotationsLocalRef;
             totalRotationsLocalRef = currentRotationLocalRef * prevRotationsGlobalRef;
@@ -127,6 +176,22 @@ namespace Robot
             previousControllerPosition = currentControllerPosition;
             previousControllerRotation = currentControllerRotation;
         }
+        
+        
+        /*private Quaternion IsolateQuaternionRotAxis(Quaternion rotation, Vector3 axisToIsolate)  Need to research more before use.
+        {
+            axisToIsolate = axisToIsolate.normalized;
+
+            Vector3 rotationAxis = new Vector3(rotation.x, rotation.y, rotation.z);
+            Vector3 projectedAxis = Vector3.Project(rotationAxis, axisToIsolate);
+
+            Quaternion twist = new Quaternion(projectedAxis.x, projectedAxis.y, projectedAxis.z, rotation.w);
+            twist.Normalize();
+
+            return twist;
+        }*/
+        
+        
 
         public void ResetPose()
         {

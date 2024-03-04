@@ -14,14 +14,14 @@ namespace Robot
         private Socket_robot_arm networkManager;
         private bool isAsyncTaskRunning;
         private bool startTransmittingData;
-        private bool stopPoseUpdate = false;
         private int gripperButton = -1;
         private Stopwatch stopwatch;
+        private string clientMsg;
 
         // Start is called before the first frame update
         void Start()
         {
-             stopwatch= new Stopwatch();
+            stopwatch= new Stopwatch();
             robotArmUnity = new RobotArmUnity(rightController);
             networkManager = new Socket_robot_arm();
 
@@ -32,12 +32,18 @@ namespace Robot
         async void Update()
         {
             stopwatch.Restart();
+            
             if (robotArmUnity.grabPinchButtonPressed() && !UIManager.UIOpen)
             {
                 gripperButton *= -1;
             }
 
-            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket && !stopPoseUpdate && !UIManager.UIOpen)
+            if (UIManager.UIOpen || clientMsg == "stop")
+            {
+                robotArmUnity.SetGripButtonFalse();
+            }
+
+            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket)
             {
                 robotArmUnity.UpdateRobotPose();
                 startTransmittingData = true;
@@ -51,16 +57,14 @@ namespace Robot
             {
                 isAsyncTaskRunning = true;
                 //networkManager.SendMessageToClient(robotArmUnity.PosVector, robotArmUnity.AxisVector, gripperButton);
-                var clientmsg = await networkManager.ReadMessageFromClientAsync();
-                if (clientmsg == "ready")
+                clientMsg = await networkManager.ReadMessageFromClientAsync();
+                if (clientMsg == "ready")
                 { 
                     networkManager.SendMessageToClient(robotArmUnity.PosVector, robotArmUnity.AxisVector, gripperButton);
-                    stopPoseUpdate = false;
                 }
-                else if (clientmsg == "stop")
+                else if (clientMsg == "stop")
                 {
                     robotArmUnity.SetGripButtonFalse();
-                    stopPoseUpdate = true;
                     robotArmUnity.AxisVector = new Vector3(0,3.14f, 0);
                     robotArmUnity.ResetPose();
                 }
