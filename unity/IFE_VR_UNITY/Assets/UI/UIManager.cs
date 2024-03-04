@@ -157,7 +157,7 @@ namespace Robot
 
         public void ToggleAxis(string axis)
         {
-            if (axis.Equals('X'))
+            if (axis.Equals("X"))
             {
                 PosX = !PosX;
                 SetColor(X, PosX);
@@ -186,6 +186,21 @@ namespace Robot
             {
                 RotZ = !RotZ;
                 SetColor(RZ,RotZ);
+            }
+            else if (axis.Equals("Reset"))
+            {
+                PosX = true;
+                PosY = true;
+                PosZ = true;
+                RotX = true;
+                RotY = true;
+                RotZ = true;
+                SetColor(X,true);
+                SetColor(Y,true);
+                SetColor(Z,true);
+                SetColor(RX,true);
+                SetColor(RY,true);
+                SetColor(RZ,true);
             }
         }
         
