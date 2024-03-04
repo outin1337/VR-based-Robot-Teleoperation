@@ -157,6 +157,7 @@ namespace Robot
 
         public void ToggleAxis(string axis)
         {
+            axis = axis.ToUpper();
             if (axis.Equals("X"))
             {
                 PosX = !PosX;
