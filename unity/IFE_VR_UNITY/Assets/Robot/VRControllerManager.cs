@@ -19,13 +19,13 @@ namespace Robot
         private string clientMsg;
 
         // Start is called before the first frame update
-        void Start()
+        async void Start()
         {
             stopwatch= new Stopwatch();
             robotArmUnity = new RobotArmUnity(rightController);
             networkManager = new Socket_robot_arm();
 
-            networkManager.StartListenerAsync();
+            await networkManager.StartListenerAsync();
         }
 
         // Update is called once per frame

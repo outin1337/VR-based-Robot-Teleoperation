@@ -146,6 +146,8 @@ if __name__ == "__main__":
                 rtde_c.reuploadScript()
                 time.sleep(1)
                 move_home()
+                data = client_socket.recv(1024)
+                send_msg("ready")
                 actualTcp = rtde_r.getActualTCPPose()
             else:
                 read_msg()

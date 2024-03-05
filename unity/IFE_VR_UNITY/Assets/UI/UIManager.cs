@@ -75,7 +75,7 @@ namespace Robot
                 //canvas.worldCamera = EscBtn ? MainCamera : pointerCam;
                 //canvas.renderMode = EscBtn ? RenderMode.ScreenSpaceOverlay : RenderMode.WorldSpace;
                 
-                uiPoint = !EscBtn;
+                uiPoint = !EscBtn; // TEMP for UI change while not having on VR headset
                 
                 Toggle();
 
@@ -110,7 +110,7 @@ namespace Robot
                     MoveOption(1);
                 }
 
-                if (!uiPoint)
+                if (!uiPoint) // TEMP for UI change while not having on VR headset
                 {
                     if (press.GetStateDown(handType) || Input.GetKeyDown(KeyCode.C))
                     {
