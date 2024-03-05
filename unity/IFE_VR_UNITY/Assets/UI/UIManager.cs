@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -30,7 +31,7 @@ namespace Robot
         private GameObject settings;
         public SteamVR_Input_Sources handType;
         public SteamVR_Action_Boolean menuButton = SteamVR_Actions.default_Menu;
-        public SteamVR_Action_Boolean leftButton, rightButton;
+        public SteamVR_Action_Boolean leftButton, rightButton, press;
         public Camera pointerCam, MainCamera;
         public Sprite Controller_Enabled, Controller_Disabled;
         public GameObject UIPointer;
@@ -39,6 +40,8 @@ namespace Robot
         private Image free_image, rotate_image, move_image, GimbalLockSprite;
         private TMPro.TextMeshProUGUI Mode_text;
         private bool controllerExist;
+        public Button[] buttons;
+        private int currentIndex = 0;
 
         void Start()
         {
@@ -65,10 +68,14 @@ namespace Robot
         {
             bool menuBtn = menuButton.GetStateUp(handType);
             bool EscBtn = Input.GetKeyDown(KeyCode.Escape);
+            bool uiPoint = false;
             
             if (menuBtn || EscBtn)
             {
-                canvas.worldCamera = EscBtn ? MainCamera : pointerCam;
+                //canvas.worldCamera = EscBtn ? MainCamera : pointerCam;
+                //canvas.renderMode = EscBtn ? RenderMode.ScreenSpaceOverlay : RenderMode.WorldSpace;
+                
+                uiPoint = !EscBtn;
                 
                 Toggle();
 
@@ -85,9 +92,14 @@ namespace Robot
                 ChangeSprite(GimbalLockSprite, Controller_Enabled);
             }
             
-            UIPointer.SetActive(UIOpen);
+            UIPointer.SetActive(UIOpen && uiPoint);
             if (UIOpen)
             {
+                if (buttons.Length > 0)
+                {
+                    EventSystem.current.SetSelectedGameObject(buttons[currentIndex].gameObject);
+                }
+                
                 if (leftButton.GetStateDown(handType) || Input.GetKeyDown(KeyCode.UpArrow))
                 {
                     MoveOption(-1);
@@ -97,20 +109,22 @@ namespace Robot
                 {
                     MoveOption(1);
                 }
+
+                if (!uiPoint)
+                {
+                    if (press.GetStateDown(handType) || Input.GetKeyDown(KeyCode.C))
+                    {
+                        buttons[currentIndex].gameObject.GetComponent<Button>().onClick.Invoke();
+                    }
+                }
             }
         }
 
         void MoveOption(int direction)
         {
-            int newIndex = (int)selected + direction;
-            int total = Enum.GetNames(typeof(Option)).Length;
-            if (newIndex >= 0 && newIndex < total)
+            if (currentIndex + direction >= 0 && currentIndex + direction < buttons.Length)
             {
-                selected = (Option)newIndex;
-            }
-            else
-            {
-                selected = newIndex >= total ? (Option) 0 : (Option)total-1;
+                currentIndex += direction;
             }
         }
 
