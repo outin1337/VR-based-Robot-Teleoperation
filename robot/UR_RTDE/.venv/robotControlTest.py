@@ -17,12 +17,12 @@ ip = "10.1.1.5" #158.39.162.177""10.1.1.5"
 
 
 def connect_to_server():
-    robot_ip = "158.39.163.5"
+    server_ip = "158.39.163.5"
     port = 30010
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((robot_ip, port))
+    client_socket.connect((server_ip, port))
     #client_socket.settimeout(30.0)
-    print(f"Connected to server at {robot_ip}:{port}")
+    print(f"Connected to server at {server_ip}:{port}")
     return client_socket
 
 
@@ -136,7 +136,9 @@ if __name__ == "__main__":
     try:
         while True:
             #read_msg()
-            if not rtde_d.running():
+            if rtde_d.running():
+                read_msg()
+            else:
                 time.sleep(2)
                 send_msg("stop")
                 print("Robot moving to safe position")
@@ -149,8 +151,6 @@ if __name__ == "__main__":
                 data = client_socket.recv(1024)
                 send_msg("ready")
                 actualTcp = rtde_r.getActualTCPPose()
-            else:
-                read_msg()
     except Exception as e:
         print(f"Error reading message: {str(e)}")
     except KeyboardInterrupt:
