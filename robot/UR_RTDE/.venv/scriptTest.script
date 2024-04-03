@@ -1,0 +1,36 @@
+def q_from_input_float_registers(register_index):
+    q = [0, 0, 0, 0, 0, 0]
+    q[0] = read_input_float_register(register_index + 0)
+    q[1] = read_input_float_register(register_index + 1)
+    q[2] = read_input_float_register(register_index + 2)
+    q[3] = read_input_float_register(register_index + 3)
+    q[4] = read_input_float_register(register_index + 4)
+    q[5] = read_input_float_register(register_index + 5)
+    return q
+  end
+
+
+  thread servo_thread():
+    while (True):
+        enter_critical
+        dt = 1.0/100
+        lh_time = 0.1
+        g = 100
+        exit_critical
+        servoj(q, t=dt, lookahead_time=lh_time, gain=g)
+    end
+end
+
+
+
+a = get_actual_tcp_pose()
+while(True):
+    b = q_from_input_float_registers(24)
+    a[0] = a[0] + b[0]
+    a[1] = a[1] + b[2]
+    a[2] = a[2] + b[1] 
+    q = a
+    textmsg(q)
+    
+    sync()
+end
