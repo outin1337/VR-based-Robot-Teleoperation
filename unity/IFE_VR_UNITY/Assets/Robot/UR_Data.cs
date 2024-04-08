@@ -45,6 +45,8 @@ namespace Robot
         public double input_double_register_27 = 3;
         public double input_double_register_28 = 4;
         public double input_double_register_29 = 7;
+        public double input_double_register_30 = 0;
+        
     }
 
 }

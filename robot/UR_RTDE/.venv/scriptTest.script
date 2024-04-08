@@ -10,27 +10,46 @@ def q_from_input_float_registers(register_index):
   end
 
 
-  thread servo_thread():
+thread servo_thread():
     while (True):
         enter_critical
-        dt = 1.0/100
-        lh_time = 0.1
-        g = 100
+        if (get_inverse_kin_has_solution(a)):
+            q = get_inverse_kin(a)
+            dt = 0.008 #1/125
+            lh_time = 0.1
+            g = 100
+        end
         exit_critical
         servoj(q, t=dt, lookahead_time=lh_time, gain=g)
+        
     end
 end
 
 
 
+movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
+
 a = get_actual_tcp_pose()
+servo_thrd = run servo_thread()
+old = 0
+
+
 while(True):
     b = q_from_input_float_registers(24)
-    a[0] = a[0] + b[0]
-    a[1] = a[1] + b[2]
-    a[2] = a[2] + b[1] 
-    q = a
-    textmsg(q)
-    
+    stop = read_input_float_register(30)
+    if (stop == 1):
+        kill servo_thrd
+        break
+    end
+    if (old != b[0]):
+        a[0] = a[0] + b[0]
+        a[1] = a[1] + b[2]
+        a[2] = a[2] + b[1] 
+        a[3] = b[3]
+        a[4] = b[4]
+        a[5] = b[5]
+    end
+    old = b[0]
     sync()
 end
+halt
