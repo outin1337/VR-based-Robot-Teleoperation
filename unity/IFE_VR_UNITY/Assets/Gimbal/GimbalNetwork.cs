@@ -1,14 +1,20 @@
 using System;
 using System.Net.Sockets;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GimbalNetwork : MonoBehaviour
 {
     private TcpClient client;
     private NetworkStream stream;
-    private string serverIp = "192.168.50.140"; // Server IP address
+    private string serverIp = "158.39.162.249"; // Server IP address
     private int port = 9999; // Server port
+    private float timeCounter = 0f;
+    
+    
+    public float delay = 0.5f; // Delay in seconds
+    public GameObject cam;
 
     void Start()
     {
@@ -17,11 +23,36 @@ public class GimbalNetwork : MonoBehaviour
         SendCommand("{\"command\": \"GOTOZERO\"}");
     }
 
+    private void Update()
+    {
+        timeCounter += Time.deltaTime;
+
+        if (timeCounter >= delay)
+        {
+            Vector3 temp = cam.transform.rotation.eulerAngles;
+            String cmd_str = $"{{\"command\": \"rotate {(int) temp.x} {(int) temp.y} {(int) temp.z}\"}}";
+            SendCommand(cmd_str);
+            Debug.Log(temp.ToString());
+            Debug.Log(cmd_str);
+            timeCounter = 0f;
+        }
+    }
+
     void ConnectToServer()
     {
+        client = new TcpClient();
+        var result = client.BeginConnect(serverIp, port, null, null);
+        var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5));
+
+        if (!success)
+        {
+            Debug.LogError("Connection to server timed out.");
+            return;
+        }
+
         try
         {
-            client = new TcpClient(serverIp, port);
+            client.EndConnect(result);
             stream = client.GetStream();
             Debug.Log("Connected to server");
         }
@@ -58,6 +89,7 @@ public class GimbalNetwork : MonoBehaviour
 
     void OnDestroy()
     {
+        SendCommand("{\"command\": \"EXIT\"}");
         if (stream != null) stream.Close();
         if (client != null) client.Close();
         Debug.Log("Disconnected from server");

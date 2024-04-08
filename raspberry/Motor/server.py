@@ -101,8 +101,11 @@ def handle_client(conn, addr):
                     response["message"] = "Exiting."
                     conn.sendall(json.dumps(response).encode('utf-8'))
                     break
-                else:
-                    target_positions = [(c["axis"], c["target_position"]) for c in cmd.get("positions", [])]
+                elif cmd["command"].upper().startswith("ROTATE"):
+                    vectors = cmd["command"].split()
+                    axes = ['X', 'Y', 'Z']
+                    positions = vectors[1:]
+                    target_positions = [(axes[i], int(position)) for i, position in enumerate(positions)]
                     rotate_multiple_axes_to_positions(target_positions)
                     response["message"] = "Position commands processed."
     

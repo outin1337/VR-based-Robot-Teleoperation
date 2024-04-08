@@ -42,7 +42,9 @@ def command_to_json(raw_cmd):
                     axis, target_position = axis_target
                     if axis.upper() in ['X', 'Y', 'Z'] and target_position.isdigit():
                         positions.append({"axis": axis.upper(), "target_position": int(target_position)})
-            return {"command": "rotate", "positions": positions}
+            rtrn = {"command": "rotate", "positions": positions}
+            print(rtrn)
+            return rtrn
         except ValueError:
             return {"command": "invalid"}
     return {"command": "invalid"}
