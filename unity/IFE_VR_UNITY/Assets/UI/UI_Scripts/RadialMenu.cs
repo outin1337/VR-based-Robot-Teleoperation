@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RadialMenu2 : MonoBehaviour
+public class RadialMenu : MonoBehaviour
 {
     public Image Menu;
     public float FillAmount;
@@ -12,11 +12,16 @@ public class RadialMenu2 : MonoBehaviour
     TextMeshProUGUI txt;
     public static bool PosX = true, PosY = true, PosZ = true, RotX = true, RotY = true, RotZ = true;
     public GameObject X, Y, Z, RX, RY, RZ;
+    public Button[] buttons;
+    public int numberOfButtons;
 
     void Start()
     {
-
-        int numberOfButtons = transform.childCount;
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            buttons[i] = transform.GetChild(i).GetComponent<Button>();
+        }
+        int numberOfButtons = buttons.Length;
         float angleStep = 360f / numberOfButtons;
         float angle = 0f;
         FillAmount = (float)((1.0 / numberOfButtons) - 0.01);
@@ -24,7 +29,7 @@ public class RadialMenu2 : MonoBehaviour
         for (int i = 0; i < numberOfButtons; i++)
         {
 
-            Transform buttonTransform = transform.GetChild(i);
+            Transform buttonTransform = buttons[i].transform;
 
             buttonTransform.transform.Rotate(Vector3.forward * (angle + 30f));
 
@@ -37,7 +42,7 @@ public class RadialMenu2 : MonoBehaviour
             buttonRectTransform.sizeDelta = new Vector2(200f, 200f);
 
             txt = buttonTransform.GetComponentInChildren<TextMeshProUGUI>();
-            float newXPosition = 85f; 
+            float newXPosition = 85f;
             Vector3 newPosition = txt.rectTransform.localPosition;
             newPosition.x = newXPosition;
             txt.rectTransform.localPosition = newPosition;
@@ -50,13 +55,14 @@ public class RadialMenu2 : MonoBehaviour
 
     private void Update()
     {
-        var stepLength = 360f / transform.childCount;
+        Debug.Log(numberOfButtons);
+        var stepLength = 360f / numberOfButtons;
         var mouseAngle = NormalizeAngle(Vector3.SignedAngle(Vector3.up, Input.mousePosition - transform.position, Vector3.forward) + stepLength / 2f);
         var activeElement = (int)(mouseAngle / stepLength);
-        
-        for (int i = 0; i < transform.childCount; i++)
+
+        for (int i = 0; i < numberOfButtons; i++)
         {
-            Transform buttonTransform = transform.GetChild(i);
+            Transform buttonTransform = buttons[i].transform;
             Image img = buttonTransform.GetComponent<Image>();
 
             if (i == activeElement)
@@ -70,12 +76,9 @@ public class RadialMenu2 : MonoBehaviour
             else
                 img.color = new Color(1f, 1f, 1f, 0.5f);
 
-            
+
 
         }
-        Debug.Log(mouseAngle);
-
-        
     }
     float NormalizeAngle(float a) => (a + 360f) % 360f;
 
@@ -141,4 +144,3 @@ public class RadialMenu2 : MonoBehaviour
         }
     }
 }
-
