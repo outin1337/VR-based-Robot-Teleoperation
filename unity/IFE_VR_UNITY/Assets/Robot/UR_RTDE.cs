@@ -453,10 +453,10 @@ namespace Robot
             return Setup_Ur_InputsOutputs(RTDE_Command.CONTROL_PACKAGE_SETUP_OUTPUTS, UrStruct, out UrStructOuputDecoder, Frequency);
         }
 
-        public bool Setup_Ur_Inputs(object UrStruct, double Frequency=1)
+        public bool Setup_Ur_Inputs(object UrStruct)
         {
             this.UrStructInput = UrStruct;
-            return Setup_Ur_InputsOutputs(RTDE_Command.CONTROL_PACKAGE_SETUP_INPUTS, UrStruct, out UrStructInputDecoder, Frequency);
+            return Setup_Ur_InputsOutputs(RTDE_Command.CONTROL_PACKAGE_SETUP_INPUTS, UrStruct, out UrStructInputDecoder);
         }
     }
 }

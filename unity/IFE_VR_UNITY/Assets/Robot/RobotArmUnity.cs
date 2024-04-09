@@ -77,6 +77,7 @@ namespace Robot
         
         
         private readonly SteamVR_Action_Boolean grabPinchAction = SteamVR_Actions.default_GrabPinch;
+        private readonly SteamVR_Action_Single squeezeGrabPinchAction = SteamVR_Actions.default_Squeeze;
         private readonly SteamVR_Action_Boolean teleportAction = SteamVR_Actions.default_Teleport;
         private readonly SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
         //private Vector3 axsisAngleTest = new Vector3(0, 3.14f, 0);
@@ -208,15 +209,32 @@ namespace Robot
             return grabPinchAction.GetStateDown(handType);
         }
 
-        private bool grabToggle;
+        public float squeezeGrabPinchValue()
+        {
+            return squeezeGrabPinchAction.GetAxis(handType)*255;
+        }
+
+        private bool grabGripToggle;
+        private bool grabGripForcedOff = false;
         public bool gripButtonPressed()
         {
-            if (grabGrip.GetStateDown(handType)) grabToggle = !grabToggle;
-            return grabToggle;
+            if (grabGrip.GetStateDown(handType) & !grabGripForcedOff ) grabGripToggle = !grabGripToggle;
+            return grabGripToggle;
         }
         public void SetGripButtonFalse()
         {
-            grabToggle = false;
+            grabGripToggle = false;
+        }
+
+        public void ForceGrabGripOff()
+        {
+            grabGripForcedOff = true;
+            SetGripButtonFalse();
+        }
+
+        public void ResetForceGrabGripOff()
+        {
+            grabGripForcedOff = false;
         }
     }
 }

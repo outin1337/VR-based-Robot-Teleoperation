@@ -27,6 +27,7 @@ namespace Robot
     {
         // public double io_current; // check the fields name in the RTDE guide : MUST be the same with the same type
         public double[] actual_q = new double[6]; // array creation must be done here to give the size
+        public uint robot_status_bits;
         // public int robot_mode;
 
         // free private & protected attributs are allows
@@ -37,15 +38,17 @@ namespace Robot
     [Serializable]
     public class UniversalRobot_Inputs
     {
-        public byte tool_digital_output_mask;
-        public byte tool_digital_output;
+        //public byte tool_digital_output_mask;
+        //public byte tool_digital_output;
         public double input_double_register_24;
         public double input_double_register_25;
         public double input_double_register_26;
-        public double input_double_register_27 = 3;
-        public double input_double_register_28 = 4;
-        public double input_double_register_29 = 7;
-        public double input_double_register_30 = 0;
+        public double input_double_register_27;
+        public double input_double_register_28;
+        public double input_double_register_29;
+        public double input_double_register_30;
+        public double input_double_register_46 = 0;
+        public double input_double_register_47 = 0;
         
     }
 

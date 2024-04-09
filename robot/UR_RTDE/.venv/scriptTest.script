@@ -13,9 +13,9 @@ def q_from_input_float_registers(register_index):
 thread servo_thread():
     while (True):
         enter_critical
-        if (get_inverse_kin_has_solution(a)):
+        if (get_inverse_kin_has_solution(a) and is_within_safety_limits(a)):
             q = get_inverse_kin(a)
-            dt = 0.008 #1/125
+            dt = 0.002 #1/500
             lh_time = 0.1
             g = 100
         end
@@ -26,22 +26,40 @@ thread servo_thread():
 end
 
 
+thread gripper_thread():
+  while (True):
+    rq_move(read_input_float_register(30))
+
+  end
+end
+
+
 
 movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
+rq_activate_and_wait()
+rq_auto_release_close_and_wait()
 
 a = get_actual_tcp_pose()
-servo_thrd = run servo_thread()
 old = 0
+grp_move = 0
+
+servo_thrd = run servo_thread()
+grp_thrd = run gripper_thread()
+
 
 
 while(True):
     b = q_from_input_float_registers(24)
-    stop = read_input_float_register(30)
+    stop = read_input_float_register(46)
+    pkt_nmbr = read_input_float_register(47)
+    grp_move = read_input_float_register(30)
     if (stop == 1):
         kill servo_thrd
+        kill grp_thrd
         break
     end
-    if (old != b[0]):
+    if (old != pkt_nmbr):
+        textmsg(grp_move)
         a[0] = a[0] + b[0]
         a[1] = a[1] + b[2]
         a[2] = a[2] + b[1] 
@@ -49,7 +67,7 @@ while(True):
         a[4] = b[4]
         a[5] = b[5]
     end
-    old = b[0]
+    old = pkt_nmbr
     sync()
 end
 halt
