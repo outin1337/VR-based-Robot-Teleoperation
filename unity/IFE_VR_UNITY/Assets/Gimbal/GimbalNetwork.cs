@@ -8,19 +8,20 @@ public class GimbalNetwork : MonoBehaviour
 {
     private TcpClient client;
     private NetworkStream stream;
-    private string serverIp = "158.39.162.249"; // Server IP address
     private int port = 9999; // Server port
     private float timeCounter = 0f;
+    private Vector3 startRotation;
     
-    
+    public string serverIp = "158.39.162.249"; // Server IP address
     public float delay = 0.5f; // Delay in seconds
     public GameObject cam;
 
     void Start()
     {
         ConnectToServer();
-        SendCommand("{\"command\": \"CALIBRATE\"}");
-        SendCommand("{\"command\": \"GOTOZERO\"}");
+        startRotation = cam.transform.rotation.eulerAngles;
+        //SendCommand("{\"command\": \"CALIBRATE\"}");
+        //SendCommand("{\"command\": \"GOTOZERO\"}");
     }
 
     private void Update()
@@ -29,7 +30,7 @@ public class GimbalNetwork : MonoBehaviour
 
         if (timeCounter >= delay)
         {
-            Vector3 temp = cam.transform.rotation.eulerAngles;
+            Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
             String cmd_str = $"{{\"command\": \"rotate {(int) temp.x} {(int) temp.y} {(int) temp.z}\"}}";
             SendCommand(cmd_str);
             Debug.Log(temp.ToString());
