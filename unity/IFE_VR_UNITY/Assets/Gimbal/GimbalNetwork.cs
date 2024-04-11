@@ -31,7 +31,7 @@ public class GimbalNetwork : MonoBehaviour
         if (timeCounter >= delay)
         {
             Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
-            String cmd_str = $"{{\"command\": \"rotate {(int) temp.x} {(int) temp.y} {(int) temp.z}\"}}";
+            String cmd_str = $"{{\"command\": \"rotate {(int) temp.z} {(int) temp.x} {(int) temp.y}\"}}";
             SendCommand(cmd_str);
             Debug.Log(temp.ToString());
             Debug.Log(cmd_str);
