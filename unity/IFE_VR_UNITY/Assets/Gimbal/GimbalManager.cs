@@ -41,6 +41,13 @@ namespace Robot
             if (gimbalToggle.GetStateDown(handType) || Input.GetKeyDown(KeyCode.Space))
             {
                 isGimbalLocked = !isGimbalLocked;
+
+                if (isGimbalLocked)
+                {
+                    GimbalNetwork.updateStartRotation();
+                    GimbalNetwork.commandSend = "CALIBRATE";
+                }
+                    
             }
                 
         }

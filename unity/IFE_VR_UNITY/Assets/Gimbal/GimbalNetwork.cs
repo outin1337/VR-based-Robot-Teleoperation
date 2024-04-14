@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using Robot;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class GimbalNetwork : MonoBehaviour
 {
@@ -10,25 +14,33 @@ public class GimbalNetwork : MonoBehaviour
     private NetworkStream stream;
     private int port = 9999; // Server port
     private float timeCounter = 0f;
-    private Vector3 startRotation;
-    
+    private bool isDeviceConnected;
+    private static Vector3 startRotation;
+    private bool systemReady = false;
+    private List<XRDisplaySubsystem> displaySubsystems;
+
+    public static string commandSend = ""; 
     public string serverIp = "158.39.162.249"; // Server IP address
-    public float delay = 0.5f; // Delay in seconds
-    public GameObject cam;
+    public float delay = 0.002f; // 500 frequency
+    public static GameObject cam;
 
     void Start()
     {
+        displaySubsystems = new List<XRDisplaySubsystem>();
+        SubsystemManager.GetInstances<XRDisplaySubsystem>(displaySubsystems);
+        
         ConnectToServer();
-        startRotation = cam.transform.rotation.eulerAngles;
         //SendCommand("{\"command\": \"CALIBRATE\"}");
-        //SendCommand("{\"command\": \"GOTOZERO\"}");
+        //SendCommand("{\"command\": \"GOTOZE
+        
+        
     }
 
     private void Update()
     {
         timeCounter += Time.deltaTime;
 
-        if (timeCounter >= delay)
+        if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
         {
             Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
             String cmd_str = $"{{\"command\": \"rotate {(int) temp.z} {(int) temp.x} {(int) temp.y}\"}}";
@@ -37,6 +49,15 @@ public class GimbalNetwork : MonoBehaviour
             Debug.Log(cmd_str);
             timeCounter = 0f;
         }
+
+        if (commandSend.Equals("CALIBRATE"))
+        {
+            SendCommand("{\"command\": \"CALIBRATE\"}");
+            commandSend = "";
+        }
+        
+        isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);
+
     }
 
     void ConnectToServer()
@@ -56,6 +77,12 @@ public class GimbalNetwork : MonoBehaviour
             client.EndConnect(result);
             stream = client.GetStream();
             Debug.Log("Connected to server");
+            if (isDeviceConnected)
+            {
+                updateStartRotation();
+                systemReady = true;
+            }
+                
         }
         catch (Exception e)
         {
@@ -86,6 +113,11 @@ public class GimbalNetwork : MonoBehaviour
         {
             Debug.LogError($"Error sending command to server: {e}");
         }
+    }
+
+    public static void updateStartRotation()
+    {
+        startRotation = cam.transform.rotation.eulerAngles;
     }
 
     void OnDestroy()
