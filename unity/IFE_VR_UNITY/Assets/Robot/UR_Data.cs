@@ -25,21 +25,18 @@ namespace Robot
     [Serializable]
     public class UniversalRobot_Outputs
     {
-        // public double io_current; // check the fields name in the RTDE guide : MUST be the same with the same type
-        public double[] actual_q = new double[6]; // array creation must be done here to give the size
+         // check the fields name in the RTDE guide : MUST be the same with the same type
+        public double[] actual_TCP_pose = new double[6]; // array creation must be done here to give the size
         public uint robot_status_bits;
-        // public int robot_mode;
+        public int output_int_register_24;
 
-        // free private & protected attributs are allows
-        // all properties and methods also (even public)
+    
 
     }
 
     [Serializable]
     public class UniversalRobot_Inputs
     {
-        //public byte tool_digital_output_mask;
-        //public byte tool_digital_output;
         public double input_double_register_24;
         public double input_double_register_25;
         public double input_double_register_26;
@@ -49,7 +46,9 @@ namespace Robot
         public double input_double_register_30;
         public double input_double_register_46 = 0;
         public double input_double_register_47 = 0;
-        
+
+        public int input_int_register_24;
+
     }
 
 }

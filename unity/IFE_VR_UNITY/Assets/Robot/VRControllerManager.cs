@@ -33,17 +33,17 @@ namespace Robot
         {
             stopwatch.Restart();
             
-            if (robotArmUnity.grabPinchButtonPressed() && !UIManager.UIOpen)
+           /* if (robotArmUnity.grabPinchButtonPressed() && !UIManager.UIOpen)
             {
                 gripperButton *= -1;
-            }
+            }*/
 
             if (UIManager.UIOpen || clientMsg == "stop")
             {
                 robotArmUnity.SetGripButtonFalse();
             }
 
-            if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket)
+            /*if (robotArmUnity.gripButtonPressed() && networkManager.BoolSocket)
             {
                 robotArmUnity.UpdateRobotPose();
                 startTransmittingData = true;
@@ -51,7 +51,7 @@ namespace Robot
             else
             {
                 robotArmUnity.PosVector = Vector3.zero;
-            }
+            }*/
             
             if (!isAsyncTaskRunning && startTransmittingData && networkManager.BoolSocket)
             {

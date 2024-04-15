@@ -33,7 +33,7 @@
     {
       "name": "/actions/default/in/Squeeze",
       "type": "vector1",
-      "requirement": "optional"
+      "requirement": "suggested"
     },
     {
       "name": "/actions/default/in/HeadsetOnHead",

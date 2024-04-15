@@ -12,12 +12,25 @@ namespace Robot
         private GameObject vrControllerObject;
         private SteamVR_Behaviour_Pose controllerPose;
         private SteamVR_Input_Sources handType;
+
+        public bool grabPinchToggle = false;
+        private bool grabGripToggle = false;
+        private bool resetPos = true;
+        public bool freezeRobot = false;
+        
+        private SteamVR_Action_Boolean grabPinchAction = SteamVR_Actions.default_GrabPinch;
+        private SteamVR_Action_Single squeezeGrabPinchAction = SteamVR_Actions.default_Squeeze;
+        private SteamVR_Action_Boolean teleportAction = SteamVR_Actions.default_Teleport;
+        private SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
         
         public RobotArmUnity(GameObject vrControllerObject)
         {
             this.vrControllerObject = vrControllerObject;
             controllerPose = this.vrControllerObject.GetComponent<SteamVR_Behaviour_Pose>();
             handType = controllerPose.inputSource;
+            //grabGrip.AddOnUpdateListener(grabGripHandleChange,handType);
+            squeezeGrabPinchAction.AddOnUpdateListener(squeezeGrabPinchActionHandleUpdate,handType);
+            
         }
 
 
@@ -60,9 +73,15 @@ namespace Robot
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private Quaternion yOffsetRotation = Quaternion.identity;
         private float axisAngle = 0.0f;
-        private Vector3 axisVector;
         private Vector3 posVector;
-        
+        private Vector3 axisVector;
+        private float robotArmGripperValue;
+
+        public float RobotArmGripperValue
+        {
+            get => robotArmGripperValue;
+        }
+
         public Vector3 AxisVector
         {
             get => axisVector;
@@ -76,18 +95,18 @@ namespace Robot
         }
         
         
-        private readonly SteamVR_Action_Boolean grabPinchAction = SteamVR_Actions.default_GrabPinch;
-        private readonly SteamVR_Action_Single squeezeGrabPinchAction = SteamVR_Actions.default_Squeeze;
-        private readonly SteamVR_Action_Boolean teleportAction = SteamVR_Actions.default_Teleport;
-        private readonly SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
-        //private Vector3 axsisAngleTest = new Vector3(0, 3.14f, 0);
         
-
         private bool oneTimeSetupBool = true;
         
-        public void UpdateRobotPose()
+        public bool UpdateRobotPose()
         {
-
+            
+            if (freezeRobot || !gripButtonPressed())
+            {
+                posVector = Vector3.zero;
+                return false; 
+            }
+ 
             if (oneTimeSetupBool)
             {
                 //constantControllerRotation = rotationToRobot * Quaternion.Euler(0, 180, 0);
@@ -176,6 +195,8 @@ namespace Robot
             
             previousControllerPosition = currentControllerPosition;
             previousControllerRotation = currentControllerRotation;
+
+            return true;
         }
         
         
@@ -192,11 +213,11 @@ namespace Robot
             return twist;
         }*/
         
-        
 
         public void ResetPose()
         {
             oneTimeSetupBool = true;
+            posVector = Vector3.zero;
         }
 
         public bool TeleportButtonPressed()
@@ -204,9 +225,32 @@ namespace Robot
             return teleportAction.GetStateUp(handType);
         }
 
-        public bool grabPinchButtonPressed()
+        public bool grabGripButtonPressed()
         {
-            return grabPinchAction.GetStateDown(handType);
+            return grabGripToggle;
+        }
+
+        /*public void grabGripHandleChange(SteamVR_Action_Boolean action, SteamVR_Input_Sources source, bool newState)
+        {
+            if (action.stateDown && !freezeRobot)
+            {
+                Debug.Log("Toggled");
+                grabGripToggle = !grabGripToggle;
+                if (grabGripToggle)
+                {
+                    resetPos = true;
+                }
+            }
+           
+        }*/
+
+        public void squeezeGrabPinchActionHandleUpdate(SteamVR_Action_Single action, SteamVR_Input_Sources source, 
+            float newAxis, float newDelta)
+        {
+            if (Mathf.Abs(newDelta) >= 0.01)
+            {
+                robotArmGripperValue = newAxis * 255;
+            }
         }
 
         public float squeezeGrabPinchValue()
@@ -214,27 +258,27 @@ namespace Robot
             return squeezeGrabPinchAction.GetAxis(handType)*255;
         }
 
-        private bool grabGripToggle;
-        private bool grabGripForcedOff = false;
+        
         public bool gripButtonPressed()
         {
-            if (grabGrip.GetStateDown(handType) & !grabGripForcedOff ) grabGripToggle = !grabGripToggle;
+            if (grabGrip.GetStateDown(handType) && !freezeRobot ) grabGripToggle = !grabGripToggle;
             return grabGripToggle;
         }
+        
         public void SetGripButtonFalse()
         {
             grabGripToggle = false;
         }
 
-        public void ForceGrabGripOff()
+        public void FreezeRobot()
         {
-            grabGripForcedOff = true;
-            SetGripButtonFalse();
+            freezeRobot = true;
+            grabGripToggle = false;
         }
 
-        public void ResetForceGrabGripOff()
+        public void UnFreezeRobot()
         {
-            grabGripForcedOff = false;
+            freezeRobot = false;
         }
     }
 }

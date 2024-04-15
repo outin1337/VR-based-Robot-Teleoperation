@@ -13,7 +13,7 @@ def q_from_input_float_registers(register_index):
 thread servo_thread():
     while (True):
         enter_critical
-        if (get_inverse_kin_has_solution(a) and is_within_safety_limits(a)):
+        if (get_inverse_kin_has_solution(a)):
             q = get_inverse_kin(a)
             dt = 0.002 #1/500
             lh_time = 0.1
@@ -37,15 +37,27 @@ end
 
 movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
 rq_activate_and_wait()
-rq_auto_release_close_and_wait()
+
 
 a = get_actual_tcp_pose()
 old = 0
 grp_move = 0
 
+#Robot sends ready signal
+write_output_integer_register(24, 1)
+while(True):
+    #Read if PC processed ready signal
+    if (read_input_integer_register(24) == 1):
+        #Reset ready signal
+        write_output_integer_register(24,0)
+        break
+    end
+    sync()
+end
+
+
 servo_thrd = run servo_thread()
 grp_thrd = run gripper_thread()
-
 
 
 while(True):

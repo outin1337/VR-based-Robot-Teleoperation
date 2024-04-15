@@ -17,6 +17,8 @@ namespace Robot
         
         UniversalRobot_Outputs UrOutputs = new UniversalRobot_Outputs(); 
         UniversalRobot_Inputs UrInputs = new UniversalRobot_Inputs();
+
+        private bool isConnected;
        
        static void Ur3_OnSockClosed(object sender, EventArgs e)
        {
@@ -43,7 +45,7 @@ namespace Robot
             
             Ur3.OnSockClosed += Ur3_OnSockClosed;
 
-            bool isConnected = await Ur3.ConnectAsync("10.1.1.5", 2);
+            isConnected = await Ur3.ConnectAsync("10.1.1.5", 2);
             if (isConnected) {
                 Debug.Log("Successfully connected.");
             } else {
@@ -53,12 +55,9 @@ namespace Robot
             // Register Inputs (UR point of view)
             Debug.Log(Ur3.Setup_Ur_Inputs(UrInputs));
 
-            
-            //UrInputs.tool_digital_output = 255;
-            //UrInputs.tool_digital_output_mask = 255;
 
-            Ur3.Send_Ur_Inputs();
-             
+            UrInputs.input_int_register_24 = 0;
+            
 
             // Register Outputs (UR point of view)
             Debug.Log(Ur3.Setup_Ur_Outputs(UrOutputs,500));
@@ -73,51 +72,69 @@ namespace Robot
 
         private float currentValue = 0;
         private float targetValue;
+        bool hasRun = false;
         void Update()
         {
 
             stopwatch.Restart();
             
-            
             //Checks if second bit is 0, checking if the program on robot is running.
-            if ((UrOutputs.robot_status_bits & (1 << 1)) == 0)
+            if ((UrOutputs.robot_status_bits & (1 << 1)) == 0 && !hasRun)
             {
-                robotArmUnity.ForceGrabGripOff();
+                hasRun = true; 
+                robotArmUnity.FreezeRobot();
                 robotArmUnity.ResetPose();
                 Debug.LogError("Forced off triggered");
             }
-            else if ((UrOutputs.robot_status_bits & (1 << 1)) != 0) 
+            else if (UrOutputs.output_int_register_24 == 1)
             {
-                robotArmUnity.ResetForceGrabGripOff();
+                hasRun = false;
+                robotArmUnity.UnFreezeRobot();
+                UrInputs.input_double_register_24 = 0;
+                UrInputs.input_double_register_25 = 0;
+                UrInputs.input_double_register_26 = 0;
+                UrInputs.input_double_register_27 = 0;
+                UrInputs.input_double_register_28 = 3.14;
+                UrInputs.input_double_register_29 = 0;
+                UrInputs.input_double_register_47 = 0; //Reset pkt number
+                UrInputs.input_int_register_24 = 1;
+                
             }
-       
-            
-            if (robotArmUnity.gripButtonPressed() )
+            else if (UrOutputs.output_int_register_24 == 0)
             {
-                robotArmUnity.UpdateRobotPose();
+                UrInputs.input_int_register_24 = 0;
+            }
+
+            if (robotArmUnity.UpdateRobotPose())
+            {
                 UrInputs.input_double_register_24 = robotArmUnity.PosVector[0];
                 UrInputs.input_double_register_25 = robotArmUnity.PosVector[1];
                 UrInputs.input_double_register_26 = robotArmUnity.PosVector[2];
                 UrInputs.input_double_register_27 = robotArmUnity.AxisVector[0];
-                UrInputs.input_double_register_28 = robotArmUnity.AxisVector[1];
+                UrInputs.input_double_register_28 = robotArmUnity.AxisVector[1]; 
                 UrInputs.input_double_register_29 = robotArmUnity.AxisVector[2];
-                targetValue = robotArmUnity.squeezeGrabPinchValue();
-                currentValue = Math.Abs(targetValue - currentValue) > 0.05*currentValue ? targetValue : currentValue;
-                UrInputs.input_double_register_30 = currentValue;
-                if (UrInputs.input_double_register_47 > 99) UrInputs.input_double_register_47 = 0;
-                ++UrInputs.input_double_register_47;
-                Debug.Log(Ur3.Send_Ur_Inputs());
-                
-                //TimeSpan ts = stopwatch.Elapsed;
-                //Debug.Log(1/(ts.Seconds+ts.Milliseconds));
             }
+            else
+            {
+                UrInputs.input_double_register_24 = 0;
+                UrInputs.input_double_register_25 = 0;
+                UrInputs.input_double_register_26 = 0;
+            }
+    
+            UrInputs.input_double_register_30 = robotArmUnity.RobotArmGripperValue;
+            if (UrInputs.input_double_register_47 > 99) UrInputs.input_double_register_47 = 0;
+            ++UrInputs.input_double_register_47;
+            if (isConnected) Debug.Log(Ur3.Send_Ur_Inputs());
+            //TimeSpan ts = stopwatch.Elapsed; 
+            //Debug.Log(1/(ts.Seconds+ts.Milliseconds));
+        
         }
 
         private void OnApplicationQuit()
         {
-            UrInputs.input_double_register_46 = 1;
+            /*UrInputs.input_double_register_46 = 1;
             Debug.Log(Ur3.Send_Ur_Inputs());
-            Ur3.Disconnect();
+            Ur3.Disconnect();*/
         }
     }
 }
