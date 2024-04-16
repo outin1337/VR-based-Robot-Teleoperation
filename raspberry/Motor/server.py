@@ -22,6 +22,7 @@ Z_STEP = 6
 Z_DIR = 13
 position_lock = Lock()
 current_position = {'X': 0, 'Y': 0, 'Z': 0}
+update_pos = {'X': 0, 'Y': 0, 'Z': 0}
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -108,6 +109,10 @@ def handle_client(conn, addr):
                     target_positions = [(axes[i], int(position)) for i, position in enumerate(positions)]
                     rotate_multiple_axes_to_positions(target_positions)
                     response["message"] = "Position commands processed."
+                elif cmd["command"].upper().startswith("ROTATE"):
+                    vectors = cmd["command"].split()
+                    positions = vectors[1:]
+                    
     
                 response["current_position"] = current_position
                 conn.sendall(json.dumps(response).encode('utf-8'))

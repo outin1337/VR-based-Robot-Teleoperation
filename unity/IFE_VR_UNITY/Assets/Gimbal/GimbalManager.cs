@@ -42,10 +42,10 @@ namespace Robot
             {
                 isGimbalLocked = !isGimbalLocked;
 
-                if (isGimbalLocked)
+                if (!isGimbalLocked)
                 {
-                    GimbalNetwork.updateStartRotation();
-                    GimbalNetwork.commandSend = "CALIBRATE";
+                    GimbalNetwork.commandSend = "UPDATEROTATION";
+                    //GimbalNetwork.commandSend = "CALIBRATE";
                 }
                     
             }

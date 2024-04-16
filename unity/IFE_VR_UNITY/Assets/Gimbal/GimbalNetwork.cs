@@ -7,6 +7,7 @@ using Robot;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR;
+using System.Threading;
 
 public class GimbalNetwork : MonoBehaviour
 {
@@ -15,25 +16,31 @@ public class GimbalNetwork : MonoBehaviour
     private int port = 9999; // Server port
     private float timeCounter = 0f;
     private bool isDeviceConnected;
-    private static Vector3 startRotation;
+    private Vector3 startRotation;
     private bool systemReady = false;
     private List<XRDisplaySubsystem> displaySubsystems;
-
+    private Thread receiveThread;
+    private bool isReceiving = true;
+    
     public static string commandSend = ""; 
     public string serverIp = "158.39.162.249"; // Server IP address
     public float delay = 0.002f; // 500 frequency
-    public static GameObject cam;
+    public GameObject cam;
 
     void Start()
     {
         displaySubsystems = new List<XRDisplaySubsystem>();
         SubsystemManager.GetInstances<XRDisplaySubsystem>(displaySubsystems);
         
+        isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);
+        
         ConnectToServer();
         //SendCommand("{\"command\": \"CALIBRATE\"}");
-        //SendCommand("{\"command\": \"GOTOZE
+
+        startRotation = cam.transform.rotation.eulerAngles;
         
-        
+        receiveThread = new Thread(ReceiveData);
+        receiveThread.Start();
     }
 
     private void Update()
@@ -43,15 +50,22 @@ public class GimbalNetwork : MonoBehaviour
         if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
         {
             Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
-            String cmd_str = $"{{\"command\": \"rotate {(int) temp.z} {(int) temp.x} {(int) temp.y}\"}}";
+            // UNITY : Z is ROLL, X is pitch, Y is yaw
+            String cmd_str = $"{{\"command\": \"rotate {(int) temp.z} {(int) -temp.x} {(int) -temp.y}\"}}";
             SendCommand(cmd_str);
-            Debug.Log(temp.ToString());
-            Debug.Log(cmd_str);
+            //Debug.Log(temp.ToString());
+            Debug.Log(startRotation);
+            //Debug.Log(cmd_str);
             timeCounter = 0f;
         }
 
         if (commandSend.Equals("CALIBRATE"))
         {
+            SendCommand("{\"command\": \"CALIBRATE\"}");
+            commandSend = "";
+        } else if (commandSend.Equals("UPDATEROTATION"))
+        {
+            updateStartRotation();
             SendCommand("{\"command\": \"CALIBRATE\"}");
             commandSend = "";
         }
@@ -79,8 +93,8 @@ public class GimbalNetwork : MonoBehaviour
             Debug.Log("Connected to server");
             if (isDeviceConnected)
             {
-                updateStartRotation();
-                systemReady = true;
+                //updateStartRotation();
+                //systemReady = true;
             }
                 
         }
@@ -102,22 +116,17 @@ public class GimbalNetwork : MonoBehaviour
         {
             byte[] bytesToSend = Encoding.ASCII.GetBytes(jsonCommand);
             stream.Write(bytesToSend, 0, bytesToSend.Length);
-
-            // Receive response
-            byte[] bytesToRead = new byte[client.ReceiveBufferSize];
-            int bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
-            string response = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
-            Debug.Log($"Server response: {response}");
         }
         catch (Exception e)
         {
             Debug.LogError($"Error sending command to server: {e}");
         }
     }
-
-    public static void updateStartRotation()
+    
+    public void updateStartRotation()
     {
         startRotation = cam.transform.rotation.eulerAngles;
+        Debug.Log("Startrotation" + startRotation);
     }
 
     void OnDestroy()
@@ -126,5 +135,24 @@ public class GimbalNetwork : MonoBehaviour
         if (stream != null) stream.Close();
         if (client != null) client.Close();
         Debug.Log("Disconnected from server");
+    }
+    
+    private void ReceiveData()
+    {
+        try
+        {
+            while (isReceiving)
+            {
+                byte[] bytesToRead = new byte[client.ReceiveBufferSize];
+                int bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
+                string response = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
+                Debug.Log($"Server response: {response}");
+                // Process received data here
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error receiving data from server: {e}");
+        }
     }
 }
