@@ -13,11 +13,14 @@ def q_from_input_float_registers(register_index):
 thread servo_thread():
     while (True):
         enter_critical
-        if (get_inverse_kin_has_solution(a)):
-            q = get_inverse_kin(a)
+        if (get_inverse_kin_has_solution(a, get_actual_joint_positions(), 1e-13, 1e-13)):
+            q = get_inverse_kin(a, get_actual_joint_positions(), 1e-13, 1e-13)
             dt = 0.002 #1/500
             lh_time = 0.1
             g = 100
+        else:
+            textmsg("no close solution found")
+            q = get_target_joint_positions()
         end
         exit_critical
         servoj(q, t=dt, lookahead_time=lh_time, gain=g)
@@ -29,7 +32,6 @@ end
 thread gripper_thread():
   while (True):
     rq_move(read_input_float_register(30))
-
   end
 end
 
@@ -71,7 +73,6 @@ while(True):
         break
     end
     if (old != pkt_nmbr):
-        textmsg(grp_move)
         a[0] = a[0] + b[0]
         a[1] = a[1] + b[2]
         a[2] = a[2] + b[1] 

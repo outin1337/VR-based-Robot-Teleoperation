@@ -27,6 +27,7 @@ namespace Robot
     {
          // check the fields name in the RTDE guide : MUST be the same with the same type
         public double[] actual_TCP_pose = new double[6]; // array creation must be done here to give the size
+        public double[] actual_TCP_force = new double[6];
         public uint robot_status_bits;
         public int output_int_register_24;
 

@@ -66,7 +66,7 @@ namespace Robot
             // Request the UR to send back Outputs periodically
             Ur3.Ur_ControlStart();
             
-
+            
         }
 
 
@@ -84,7 +84,7 @@ namespace Robot
                 hasRun = true; 
                 robotArmUnity.FreezeRobot();
                 robotArmUnity.ResetPose();
-                Debug.LogError("Forced off triggered");
+                //Debug.LogError("Forced off triggered");
             }
             else if (UrOutputs.output_int_register_24 == 1)
             {
@@ -124,10 +124,19 @@ namespace Robot
             UrInputs.input_double_register_30 = robotArmUnity.RobotArmGripperValue;
             if (UrInputs.input_double_register_47 > 99) UrInputs.input_double_register_47 = 0;
             ++UrInputs.input_double_register_47;
-            if (isConnected) Debug.Log(Ur3.Send_Ur_Inputs());
+            if (isConnected) Ur3.Send_Ur_Inputs();
             //TimeSpan ts = stopwatch.Elapsed; 
             //Debug.Log(1/(ts.Seconds+ts.Milliseconds));
+            
+            //robotArmUnity.VibrationController(UrOutputs.actual_TCP_force);
+            //Debug.Log(string.Format("Force values: {0:F2} .. {1:F2} .. {2:F2}",UrOutputs.actual_TCP_force[0], UrOutputs.actual_TCP_force[1], UrOutputs.actual_TCP_force[2]));
+           
         
+        }
+
+        private void FixedUpdate()
+        {
+            robotArmUnity.VibrationController(UrOutputs.actual_TCP_force);
         }
 
         private void OnApplicationQuit()

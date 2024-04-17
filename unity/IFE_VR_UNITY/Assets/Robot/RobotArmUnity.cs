@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Valve.VR;
 
@@ -22,6 +24,7 @@ namespace Robot
         private SteamVR_Action_Single squeezeGrabPinchAction = SteamVR_Actions.default_Squeeze;
         private SteamVR_Action_Boolean teleportAction = SteamVR_Actions.default_Teleport;
         private SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
+        private SteamVR_Action_Vibration forceVibration = SteamVR_Actions.default_Haptic;
         
         public RobotArmUnity(GameObject vrControllerObject)
         {
@@ -279,6 +282,17 @@ namespace Robot
         public void UnFreezeRobot()
         {
             freezeRobot = false;
+        }
+
+        public void VibrationController(double[] force)
+        {
+            float seconds = Time.fixedDeltaTime / Time.timeScale;
+            float maxAbsoluteForce = (float)force.Take(3).Select(Math.Abs).Max();
+            maxAbsoluteForce /= 250;
+            maxAbsoluteForce =  0.15 < maxAbsoluteForce ? maxAbsoluteForce : 0;
+            
+            //Debug.Log(string.Format("max force {0:F2}", maxAbsoluteForce));
+            forceVibration.Execute(0,seconds, 0.9f, maxAbsoluteForce, handType);
         }
     }
 }
