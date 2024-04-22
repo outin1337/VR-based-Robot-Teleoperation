@@ -12,6 +12,7 @@ namespace Robot
     {
         
         private GameObject vrControllerObject;
+        private GameObject vrCamera;
         private SteamVR_Behaviour_Pose controllerPose;
         private SteamVR_Input_Sources handType;
 
@@ -26,8 +27,9 @@ namespace Robot
         private SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
         private SteamVR_Action_Vibration forceVibration = SteamVR_Actions.default_Haptic;
         
-        public RobotArmUnity(GameObject vrControllerObject)
+        public RobotArmUnity(GameObject vrControllerObject, GameObject vrCamera)
         {
+            this.vrCamera = vrCamera;
             this.vrControllerObject = vrControllerObject;
             controllerPose = this.vrControllerObject.GetComponent<SteamVR_Behaviour_Pose>();
             handType = controllerPose.inputSource;
@@ -71,8 +73,8 @@ namespace Robot
 
 
 
-        //private Quaternion rotationToRobot = Quaternion.Euler(-90, 0, 0);// * Quaternion.Euler(0,0,90);
-        private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
+        //private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
+        private Quaternion rotationToRobot = Quaternion.AngleAxis(0, Vector3.forward);
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private Quaternion yOffsetRotation = Quaternion.identity;
         private float axisAngle = 0.0f;
@@ -127,14 +129,14 @@ namespace Robot
             if (grabGrip.GetStateDown(handType))
             {
                 xOffsetRotation = Quaternion.Euler(controllerPose.transform.rotation.eulerAngles.x, 0, 0);
-                previousControllerPosition = controllerPose.transform.position;
+                previousControllerPosition = vrCamera.transform.InverseTransformPoint(controllerPose.transform.position);
                 previousControllerRotation = controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
             }
 
        
 
             
-            currentControllerPosition = controllerPose.transform.position;
+            currentControllerPosition = vrCamera.transform.InverseTransformPoint(controllerPose.transform.position);
             deltaControllerPosition = currentControllerPosition - previousControllerPosition;
 
             

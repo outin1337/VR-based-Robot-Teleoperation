@@ -1,3 +1,7 @@
+def moveHome():
+    movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
+end
+
 def q_from_input_float_registers(register_index):
     q = [0, 0, 0, 0, 0, 0]
     q[0] = read_input_float_register(register_index + 0)
@@ -9,12 +13,17 @@ def q_from_input_float_registers(register_index):
     return q
   end
 
-
 thread servo_thread():
     while (True):
         enter_critical
-        if (get_inverse_kin_has_solution(a, get_actual_joint_positions(), 1e-13, 1e-13)):
-            q = get_inverse_kin(a, get_actual_joint_positions(), 1e-13, 1e-13)
+        if (get_inverse_kin_has_solution(a)):
+            c = get_actual_tcp_pose()
+            q = get_inverse_kin(a)
+            if ( 0.1 < pose_dist(c, a)):
+                write_output_integer_register(25,1)
+                moveHome()
+                write_output_integer_register(25,0)
+            end
             dt = 0.002 #1/500
             lh_time = 0.1
             g = 100
@@ -24,26 +33,26 @@ thread servo_thread():
         end
         exit_critical
         servoj(q, t=dt, lookahead_time=lh_time, gain=g)
-        
     end
 end
-
 
 thread gripper_thread():
   while (True):
     rq_move(read_input_float_register(30))
+    sync()
   end
 end
 
-
-
-movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
+moveHome()
+zero_ftsensor()
 rq_activate_and_wait()
 
-
-a = get_actual_tcp_pose()
+global a = get_actual_tcp_pose()
+global resetToHome = False
 old = 0
 grp_move = 0
+
+write_output_integer_register(25, 0)
 
 #Robot sends ready signal
 write_output_integer_register(24, 1)
@@ -58,8 +67,8 @@ while(True):
 end
 
 
-servo_thrd = run servo_thread()
-grp_thrd = run gripper_thread()
+global servo_thrd = run servo_thread()
+global grp_thrd = run gripper_thread()
 
 
 while(True):

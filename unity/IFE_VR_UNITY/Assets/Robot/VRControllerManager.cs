@@ -9,6 +9,7 @@ namespace Robot
     {
 
         [SerializeField] private GameObject rightController;
+        [SerializeField] private GameObject vrCamera;
 
         private RobotArmUnity robotArmUnity;
         private Socket_robot_arm networkManager;
@@ -22,7 +23,7 @@ namespace Robot
         async void Start()
         {
             stopwatch= new Stopwatch();
-            robotArmUnity = new RobotArmUnity(rightController);
+            robotArmUnity = new RobotArmUnity(rightController, vrCamera);
             networkManager = new Socket_robot_arm();
 
             await networkManager.StartListenerAsync();

@@ -30,6 +30,7 @@ namespace Robot
         public double[] actual_TCP_force = new double[6];
         public uint robot_status_bits;
         public int output_int_register_24;
+        public int output_int_register_25;
 
     
 

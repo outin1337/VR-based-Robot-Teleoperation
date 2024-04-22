@@ -10,6 +10,7 @@ namespace Robot
     public class Program : MonoBehaviour
     { 
         [SerializeField] private GameObject rightController;
+        [SerializeField] private GameObject vrCamera;
         private RobotArmUnity robotArmUnity;
         private bool startTransmittingData;
         private int gripperButton = -1;
@@ -39,13 +40,13 @@ namespace Robot
             
             stopwatch= new Stopwatch();
 
-            robotArmUnity = new RobotArmUnity(rightController);
+            robotArmUnity = new RobotArmUnity(rightController ,vrCamera);
             
             // Connection using the protocol version 2 (allows update frequency less or equal to 125 Hz)
             
             Ur3.OnSockClosed += Ur3_OnSockClosed;
 
-            isConnected = await Ur3.ConnectAsync("10.1.1.5", 2);
+            isConnected = await Ur3.ConnectAsync("158.39.162.177", 2); //158.39.162.177 .... 10.1.1.5
             if (isConnected) {
                 Debug.Log("Successfully connected.");
             } else {
@@ -79,14 +80,14 @@ namespace Robot
             stopwatch.Restart();
             
             //Checks if second bit is 0, checking if the program on robot is running.
-            if ((UrOutputs.robot_status_bits & (1 << 1)) == 0 && !hasRun)
+            if (((UrOutputs.robot_status_bits & (1 << 1)) == 0 || UrOutputs.output_int_register_25 == 1) && !hasRun)
             {
                 hasRun = true; 
                 robotArmUnity.FreezeRobot();
                 robotArmUnity.ResetPose();
                 //Debug.LogError("Forced off triggered");
             }
-            else if (UrOutputs.output_int_register_24 == 1)
+            else if (UrOutputs.output_int_register_24 == 1 && UrOutputs.output_int_register_25 == 0)
             {
                 hasRun = false;
                 robotArmUnity.UnFreezeRobot();
@@ -141,9 +142,9 @@ namespace Robot
 
         private void OnApplicationQuit()
         {
-            /*UrInputs.input_double_register_46 = 1;
+            UrInputs.input_double_register_46 = 1;
             Debug.Log(Ur3.Send_Ur_Inputs());
-            Ur3.Disconnect();*/
+            Ur3.Disconnect();
         }
     }
 }
