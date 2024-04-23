@@ -47,7 +47,18 @@ public class GimbalNetwork : MonoBehaviour
     {
         timeCounter += Time.deltaTime;
 
-        if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
+        if (commandSend.Equals("CALIBRATE"))
+        {
+            SendCommand("{\"command\": \"CALIBRATE\"}");
+            commandSend = "";
+        } else if (commandSend.Equals("UPDATEROTATION"))
+        {
+            updateStartRotation();
+            //SendCommand("{\"command\": \"CALIBRATE\"}");
+            commandSend = "";
+        }
+
+		if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
         {
             Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
             // UNITY : Z is ROLL, X is pitch, Y is yaw
@@ -58,17 +69,6 @@ public class GimbalNetwork : MonoBehaviour
             Debug.Log(startRotation);
             //Debug.Log(cmd_str);
             timeCounter = 0f;
-        }
-
-        if (commandSend.Equals("CALIBRATE"))
-        {
-            SendCommand("{\"command\": \"CALIBRATE\"}");
-            commandSend = "";
-        } else if (commandSend.Equals("UPDATEROTATION"))
-        {
-            updateStartRotation();
-            SendCommand("{\"command\": \"CALIBRATE\"}");
-            commandSend = "";
         }
         
         isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);

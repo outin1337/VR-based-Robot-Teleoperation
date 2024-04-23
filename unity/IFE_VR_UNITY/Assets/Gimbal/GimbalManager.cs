@@ -19,7 +19,8 @@ namespace Robot
 
         void Start()
         {
-            MoveObject(ObjPointCloud);
+            StartCoroutine(FirstCloud());
+            //MoveObject(ObjPointCloud);
         }
 
         void Update()
@@ -50,6 +51,12 @@ namespace Robot
                     
             }
                 
+        }
+
+        IEnumerator FirstCloud()
+        {
+            yield return new WaitForSeconds(1);
+            MoveObject(ObjPointCloud);
         }
 
         void MoveObject(GameObject obj)
