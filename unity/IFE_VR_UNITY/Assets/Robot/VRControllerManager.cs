@@ -23,7 +23,7 @@ namespace Robot
         async void Start()
         {
             stopwatch= new Stopwatch();
-            robotArmUnity = new RobotArmUnity(rightController, vrCamera);
+            robotArmUnity = new RobotArmUnity(rightController, vrCamera, null);
             networkManager = new Socket_robot_arm();
 
             await networkManager.StartListenerAsync();

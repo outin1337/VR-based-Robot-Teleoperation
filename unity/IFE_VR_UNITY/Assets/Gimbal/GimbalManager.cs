@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
@@ -13,12 +15,15 @@ namespace Robot
         public static bool isGimbalLocked = true;
         public float distance = 0f;
         public Vector3 offset;
+        public UnityEvent gimbalLocked;
         
         private SteamVR_Input_Sources handType = SteamVR_Input_Sources.RightHand;
         private SteamVR_Action_Boolean gimbalToggle = SteamVR_Actions.default_Teleport;
 
         void Start()
         {
+            if (gimbalLocked == null)
+                gimbalLocked = new UnityEvent();
             StartCoroutine(FirstCloud());
             //MoveObject(ObjPointCloud);
         }
@@ -42,11 +47,18 @@ namespace Robot
             if (gimbalToggle.GetStateDown(handType) || Input.GetKeyDown(KeyCode.Space))
             {
                 isGimbalLocked = !isGimbalLocked;
+                
 
                 if (!isGimbalLocked)
                 {
                     GimbalNetwork.commandSend = "UPDATEROTATION";
                     //GimbalNetwork.commandSend = "CALIBRATE";
+                    
+                }
+                else
+                {
+                    gimbalLocked.Invoke();
+                    //RobotArmUnity.SetLockedCameraTransform();
                 }
                     
             }
@@ -56,6 +68,7 @@ namespace Robot
         IEnumerator FirstCloud()
         {
             yield return new WaitForSeconds(1);
+            gimbalLocked.Invoke();
             MoveObject(ObjPointCloud);
         }
 

@@ -11,6 +11,7 @@ namespace Robot
     { 
         [SerializeField] private GameObject rightController;
         [SerializeField] private GameObject vrCamera;
+        [SerializeField] private GameObject lockedVrCameraCopy;
         private RobotArmUnity robotArmUnity;
         private bool startTransmittingData;
         private int gripperButton = -1;
@@ -40,7 +41,7 @@ namespace Robot
             
             stopwatch= new Stopwatch();
 
-            robotArmUnity = new RobotArmUnity(rightController ,vrCamera);
+            robotArmUnity = new RobotArmUnity(rightController ,vrCamera, lockedVrCameraCopy);
             
             // Connection using the protocol version 2 (allows update frequency less or equal to 125 Hz)
             
@@ -67,7 +68,7 @@ namespace Robot
             // Request the UR to send back Outputs periodically
             Ur3.Ur_ControlStart();
             
-            
+            //SetLockedCameraTransform();
         }
 
 
@@ -85,12 +86,6 @@ namespace Robot
                 hasRun = true; 
                 robotArmUnity.FreezeRobot();
                 robotArmUnity.ResetPose();
-                //Debug.LogError("Forced off triggered");
-            }
-            else if (UrOutputs.output_int_register_24 == 1 && UrOutputs.output_int_register_25 == 0)
-            {
-                hasRun = false;
-                robotArmUnity.UnFreezeRobot();
                 UrInputs.input_double_register_24 = 0;
                 UrInputs.input_double_register_25 = 0;
                 UrInputs.input_double_register_26 = 0;
@@ -98,9 +93,15 @@ namespace Robot
                 UrInputs.input_double_register_28 = 3.14;
                 UrInputs.input_double_register_29 = 0;
                 UrInputs.input_double_register_47 = 0; //Reset pkt number
-                UrInputs.input_int_register_24 = 1;
-                
+                //Debug.LogError("Forced off triggered");
             }
+            else if (UrOutputs.output_int_register_24 == 1)
+            {
+                hasRun = false;
+                robotArmUnity.UnFreezeRobot();
+                UrInputs.input_int_register_24 = 1;
+            }
+            
             else if (UrOutputs.output_int_register_24 == 0)
             {
                 UrInputs.input_int_register_24 = 0;
@@ -145,6 +146,12 @@ namespace Robot
             UrInputs.input_double_register_46 = 1;
             Debug.Log(Ur3.Send_Ur_Inputs());
             Ur3.Disconnect();
+        }
+
+
+        public void SetLockedCameraTransform()
+        {
+            robotArmUnity.SetLockedCameraTransform();
         }
     }
 }

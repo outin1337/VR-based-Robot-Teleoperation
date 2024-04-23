@@ -13,6 +13,7 @@ namespace Robot
         
         private GameObject vrControllerObject;
         private GameObject vrCamera;
+        private GameObject lockedVrCameraCopy;
         private SteamVR_Behaviour_Pose controllerPose;
         private SteamVR_Input_Sources handType;
 
@@ -27,7 +28,7 @@ namespace Robot
         private SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
         private SteamVR_Action_Vibration forceVibration = SteamVR_Actions.default_Haptic;
         
-        public RobotArmUnity(GameObject vrControllerObject, GameObject vrCamera)
+        public RobotArmUnity(GameObject vrControllerObject, GameObject vrCamera, GameObject lockedVrCameraCopy)
         {
             this.vrCamera = vrCamera;
             this.vrControllerObject = vrControllerObject;
@@ -35,17 +36,8 @@ namespace Robot
             handType = controllerPose.inputSource;
             //grabGrip.AddOnUpdateListener(grabGripHandleChange,handType);
             squeezeGrabPinchAction.AddOnUpdateListener(squeezeGrabPinchActionHandleUpdate,handType);
-            
-        }
+            lockedVrCameraTransform = lockedVrCameraCopy.transform;
 
-
-        private double tresholdPos;
-        private double TresholdAng { get; set; } = 90;
-
-        public double TresholdPos
-        {
-            get => tresholdPos;
-            set => tresholdPos = value; 
         }
     
         
@@ -80,7 +72,9 @@ namespace Robot
         private float axisAngle = 0.0f;
         private Vector3 posVector;
         private Vector3 axisVector;
+        private Vector3 forwardHorizontal;
         private float robotArmGripperValue;
+        private Transform lockedVrCameraTransform;
 
         public float RobotArmGripperValue
         {
@@ -129,18 +123,30 @@ namespace Robot
             if (grabGrip.GetStateDown(handType))
             {
                 xOffsetRotation = Quaternion.Euler(controllerPose.transform.rotation.eulerAngles.x, 0, 0);
-                previousControllerPosition = vrCamera.transform.InverseTransformPoint(controllerPose.transform.position);
+                previousControllerPosition = controllerPose.transform.position;
                 previousControllerRotation = controllerPose.transform.rotation * xOffsetRotation * rotationToRobot;
             }
 
        
 
             
-            currentControllerPosition = vrCamera.transform.InverseTransformPoint(controllerPose.transform.position);
-            deltaControllerPosition = currentControllerPosition - previousControllerPosition;
-
+            currentControllerPosition = controllerPose.transform.position;
             
-
+            if (GimbalManager.isGimbalLocked)
+            {
+                forwardHorizontal = new Vector3(lockedVrCameraTransform.forward.x, 0,
+                    lockedVrCameraTransform.forward.z).normalized;
+            }
+            else
+            {
+                forwardHorizontal = new Vector3(vrCamera.transform.forward.x, 0, vrCamera.transform.forward.z).normalized;
+            }
+            
+            Quaternion yOnlyCameraRotation = Quaternion.LookRotation(forwardHorizontal, Vector3.up);
+            deltaControllerPosition = (yOnlyCameraRotation * currentControllerPosition) 
+                                      - (yOnlyCameraRotation * previousControllerPosition);
+            deltaControllerPosition = Quaternion.Euler(0, 180, 0) * deltaControllerPosition;
+     
             currentControllerRotation = controllerPose.transform.rotation * xOffsetRotation  * rotationToRobot;
             deltaControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation; //Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
           
@@ -295,6 +301,13 @@ namespace Robot
             
             //Debug.Log(string.Format("max force {0:F2}", maxAbsoluteForce));
             forceVibration.Execute(0,seconds, 0.9f, maxAbsoluteForce, handType);
+        }
+
+
+        public void SetLockedCameraTransform()
+        {
+            lockedVrCameraTransform.position = vrCamera.transform.position;
+            lockedVrCameraTransform.rotation = vrCamera.transform.rotation;
         }
     }
 }

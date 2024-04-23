@@ -1,5 +1,6 @@
 def moveHome():
     movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
+    textmsg("home")
 end
 
 def q_from_input_float_registers(register_index):
@@ -22,14 +23,15 @@ thread servo_thread():
             if ( 0.1 < pose_dist(c, a)):
                 write_output_integer_register(25,1)
                 moveHome()
-                write_output_integer_register(25,0)
+                global a = get_actual_tcp_pose()
+                syncPc()
             end
             dt = 0.002 #1/500
             lh_time = 0.1
             g = 100
         else:
             textmsg("no close solution found")
-            q = get_target_joint_positions()
+            q = get_actual_joint_positions()
         end
         exit_critical
         servoj(q, t=dt, lookahead_time=lh_time, gain=g)
@@ -54,18 +56,22 @@ grp_move = 0
 
 write_output_integer_register(25, 0)
 
-#Robot sends ready signal
-write_output_integer_register(24, 1)
-while(True):
-    #Read if PC processed ready signal
-    if (read_input_integer_register(24) == 1):
-        #Reset ready signal
-        write_output_integer_register(24,0)
-        break
+def syncPc():
+    #Robot sends ready signal
+    write_output_integer_register(24, 1)
+    while(True):
+        #Read if PC processed ready signal
+        if (read_input_integer_register(24) == 1):
+            #Reset ready signal
+            write_output_integer_register(24,0)
+            write_output_integer_register(25,0)
+            break
+        end
+        sync()
     end
-    sync()
 end
 
+syncPc()
 
 global servo_thrd = run servo_thread()
 global grp_thrd = run gripper_thread()
