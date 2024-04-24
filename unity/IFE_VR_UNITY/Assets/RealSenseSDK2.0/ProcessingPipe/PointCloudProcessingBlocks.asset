@@ -49,10 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bec95ba2af23efd408d33138086f1c65, type: 3}
   m_Name: RsTemporalFilter
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   _filterSmoothAlpha: 0.4
-  _filterSmoothDelta: 20
-  _temporalPersistence: 3
+  _filterSmoothDelta: 1
+  _temporalPersistence: 1
 --- !u!114 &114189879441361140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48f1a4dc738fa514aa5e5d4cc3665aae, type: 3}
   m_Name: RsSpatialFilter
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   _filterMagnitude: 2
   _filterSmoothAlpha: 0.5
   _filterSmoothDelta: 20
@@ -114,9 +114,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab8658da5fac1924385546d4cfccbea4, type: 3}
   m_Name: RsDecimationFilter
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   _streamFilter: 1
-  _formatFilter: 5
+  _formatFilter: 1
   _filterMagnitude: 4
 --- !u!114 &114544001719900210
 MonoBehaviour:
@@ -144,9 +144,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dffddaeb99d79644b99b1d8d18bad86, type: 3}
   m_Name: RsThresholdFilter
   m_EditorClassIdentifier: 
-  enabled: 1
-  MinDistance: 0
-  MaxDistance: 10
+  enabled: 0
+  MinDistance: 0.3
+  MaxDistance: 3
 --- !u!114 &114894276943703578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,5 +175,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a370b019fb25fbe4384bc45033197fcd, type: 3}
   m_Name: RsHoleFillingFilter
   m_EditorClassIdentifier: 
-  enabled: 1
+  enabled: 0
   _holesFill: 0

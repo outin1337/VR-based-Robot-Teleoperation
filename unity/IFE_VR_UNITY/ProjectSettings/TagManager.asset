@@ -22,6 +22,7 @@ TagManager:
   - 
   - 
   - 
+  - tagInvisibleToZED
   - 
   - 
   - 
@@ -35,8 +36,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - arlayer
   - 
   m_SortingLayers:
   - name: Default

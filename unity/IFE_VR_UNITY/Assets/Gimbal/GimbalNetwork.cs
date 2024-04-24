@@ -62,8 +62,8 @@ public class GimbalNetwork : MonoBehaviour
         {
             Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
             // UNITY : Z is ROLL, X is pitch, Y is yaw
-            String cmd_str = $"{{\"command\": \"rotate {(int) -temp.z} {(int) temp.x} {(int) -temp.y}\"}}";
-            //String cmd_str = $"{{\"command\": \"rotate {0} {(int) -temp.x} {(int) -temp.y}\"}}";
+            //String cmd_str = $"{{\"command\": \"rotate {(int) -temp.z} {(int) temp.x} {(int) -temp.y}\"}}";
+            String cmd_str = $"{{\"command\": \"rotate {0} {(int) -temp.x} {(int) -temp.y}\"}}";
             SendCommand(cmd_str);
             //Debug.Log(temp.ToString());
             Debug.Log(startRotation);
