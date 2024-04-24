@@ -20,15 +20,15 @@ thread servo_thread():
         if (get_inverse_kin_has_solution(a)):
             c = get_actual_tcp_pose()
             q = get_inverse_kin(a)
-            if ( 0.1 < pose_dist(c, a)):
+            if ( 0.1 < pose_dist(c, a) or not is_within_safety_limits(a)):
                 write_output_integer_register(25,1)
                 moveHome()
                 global a = get_actual_tcp_pose()
                 syncPc()
             end
             dt = 0.002 #1/500
-            lh_time = 0.1
-            g = 100
+            lh_time = 0.05
+            g = 500
         else:
             textmsg("no close solution found")
             q = get_actual_joint_positions()
@@ -48,6 +48,8 @@ end
 moveHome()
 zero_ftsensor()
 rq_activate_and_wait()
+rq_set_force(255)
+rq_set_speed(255)
 
 global a = get_actual_tcp_pose()
 global resetToHome = False

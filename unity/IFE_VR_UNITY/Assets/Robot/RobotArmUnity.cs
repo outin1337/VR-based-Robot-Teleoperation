@@ -143,12 +143,14 @@ namespace Robot
             }
             
             Quaternion yOnlyCameraRotation = Quaternion.LookRotation(forwardHorizontal, Vector3.up);
+            yOnlyCameraRotation = Quaternion.Inverse(yOnlyCameraRotation);
             deltaControllerPosition = (yOnlyCameraRotation * currentControllerPosition) 
                                       - (yOnlyCameraRotation * previousControllerPosition);
-            deltaControllerPosition = Quaternion.Euler(0, 180, 0) * deltaControllerPosition;
+            //deltaControllerPosition = Quaternion.Euler(0, 180, 0) * deltaControllerPosition;
      
             currentControllerRotation = controllerPose.transform.rotation * xOffsetRotation  * rotationToRobot;
-            deltaControllerRotation =  Quaternion.Inverse(previousControllerRotation) * currentControllerRotation; //Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
+            
+            deltaControllerRotation = Quaternion.Inverse(yOnlyCameraRotation*previousControllerRotation) * (yOnlyCameraRotation*currentControllerRotation); //Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
           
 
             if (!UIManager.PosX)
