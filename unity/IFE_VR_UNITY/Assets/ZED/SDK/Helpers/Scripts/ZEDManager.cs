@@ -2732,7 +2732,7 @@ public class ZEDManager : MonoBehaviour
                     zedRigRoot.localRotation = initialRotation;
                 }
             }
-
+            
             requestNewFrame = true; //Lets ThreadedZEDGrab/AcquireImages() start grabbing again.
             newFrameAvailable = false;
         }
