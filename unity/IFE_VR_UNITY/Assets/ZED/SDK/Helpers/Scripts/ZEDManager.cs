@@ -2613,7 +2613,9 @@ public class ZEDManager : MonoBehaviour
         zedRigRoot.localRotation = OriginRotation;
 
     }
-
+	
+	private Quaternion rot = Quaternion.identity;
+	private Vector3 pos = Vector3.zero;
     /// <summary>
     /// Initializes the ZED's inside-out tracking. Started as a separate thread in OnZEDReady.
     /// </summary>
@@ -2630,6 +2632,9 @@ public class ZEDManager : MonoBehaviour
 
             sl.ERROR_CODE err = (zedCamera.EnableTracking(ref zedOrientation, ref zedPosition, enableSpatialMemory,
                 enablePoseSmoothing, setFloorAsOrigin, trackingIsStatic, enableIMUFusion, depthMinRange, setGravityAsOrigin, positionalTrackingMode, pathSpatialMemory));
+			
+			//sl.ERROR_CODE err = zedCamera.EnableTracking(ref rot, ref pos);
+			
 
             //Now enable the tracking with the proper parameters.
             if (!(enableTracking = (err == sl.ERROR_CODE.SUCCESS)))
@@ -2778,9 +2783,9 @@ public class ZEDManager : MonoBehaviour
             }
             else //Not AR pass-through mode.
             {
-                zedRigRoot.localRotation = zedOrientation;
-                if (!ZEDSupportFunctions.IsVector3NaN(zedPosition))
-                    zedRigRoot.localPosition = zedPosition;
+                //zedRigRoot.localRotation = zedOrientation;
+                //if (!ZEDSupportFunctions.IsVector3NaN(zedPosition))
+                   // zedRigRoot.localPosition = zedPosition;
             }
         }
         else if (ZEDSupportFunctions.hasXRDevice() && isStereoRig) //ZED tracking is off but HMD tracking is on. Fall back to that.
@@ -2828,6 +2833,10 @@ public class ZEDManager : MonoBehaviour
         UpdateObjectDetection(); //Update od if activated
         UpdateBodiesTracking(); // Update bt if actived
         UpdateMapping(); //Update mapping if activated
+		
+        
+		Debug.Log("Rotation " + zedOrientation.eulerAngles);
+		Debug.Log("Position " + zedPosition);
 
         /// If in Unity Editor, update the ZEDManager status list
 #if UNITY_EDITOR
