@@ -78,15 +78,19 @@ namespace Robot
             if (distance != 0f)
             {
                 Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0, Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
-                obj.transform.position = MainCamera.transform.position - offset + forwardDirection * distance;
+                //obj.transform.position = MainCamera.transform.position - offset + forwardDirection * distance;
+                obj.transform.position = MainCamera.transform.position + MainCamera.transform.forward * distance;
+                obj.transform.rotation = MainCamera.transform.rotation;
+                //Debug.Log(MainCamera.transform.rotation.eulerAngles);
             }
             else
             {
-                obj.transform.position = MainCamera.transform.position - offset;
+                obj.transform.position = MainCamera.transform.position - offset + MainCamera.transform.forward * distance;
+                obj.transform.rotation = MainCamera.transform.rotation;
             }
             
-            Quaternion yawOnlyRotation = Quaternion.Euler(0, cameraYaw, 0);
-            obj.transform.rotation = yawOnlyRotation;
+            //Quaternion yawOnlyRotation = Quaternion.Euler(0, cameraYaw, 0);
+            //obj.transform.rotation = yawOnlyRotation;
         }
     }
 }

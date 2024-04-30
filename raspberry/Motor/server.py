@@ -10,8 +10,8 @@ from threading import Lock
 HOST = '10.0.1.58'
 PORT = 9999
 SPEED_DELAY = 0.00000001 / 100000
-SPR_X = 200 * 32 
-SPR_YZ = SPR_X * 2 
+SPR_XY = 200 * 32 
+SPR_Z = SPR_XY * 2
 CW = 1  
 CCW = 0  
 X_STEP = 21
@@ -23,6 +23,7 @@ Z_DIR = 13
 position_lock = Lock()
 current_position = {'X': 0, 'Y': 0, 'Z': 0}
 update_pos = {'X': 0, 'Y': 0, 'Z': 0}
+sensor_pos = {'X': 0, 'Y': 0, 'Z': 0}
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -60,7 +61,7 @@ def rotate_to_position(step_pin, dir_pin, axis, target_position):
         degrees_to_rotate -= 360 
 
     direction = CW if degrees_to_rotate > 0 else CCW
-    steps = int(abs(degrees_to_rotate) / 360 * (SPR_X if axis == 'X' else SPR_YZ))
+    steps = int(abs(degrees_to_rotate) / 360 * (SPR_Z if axis == 'Z' else SPR_XY))
     GPIO.output(dir_pin, direction)
     for _ in range(steps):
         GPIO.output(step_pin, GPIO.HIGH)
@@ -112,6 +113,12 @@ def handle_client(conn, addr):
                 elif cmd["command"].upper().startswith("ROTATE"):
                     vectors = cmd["command"].split()
                     positions = vectors[1:]
+                elif cmd["command"].upper().startswith("SETSENSOR"):
+                    vectors = cmd["command"].split()
+                    sensor_arr = vectors[1:]
+                    sensor_pos["X"] = sensor_arr[0]
+                    sensor_pos["Y"] = sensor_arr[1]
+                    sensor_pos["Z"] = sensor_arr[2] 
                     
     
                 response["current_position"] = current_position

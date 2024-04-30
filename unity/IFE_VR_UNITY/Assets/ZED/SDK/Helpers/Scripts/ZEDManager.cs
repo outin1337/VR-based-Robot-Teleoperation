@@ -19,6 +19,8 @@ using sl;
 public class ZEDManager : MonoBehaviour
 {
 
+	public GameObject sensorObj;
+
     /// <summary>
     /// Static function to get instance of the ZEDManager with a given camera_ID. See sl.ZED_CAMERA_ID for the available choices.
     /// </summary>
@@ -2180,6 +2182,7 @@ public class ZEDManager : MonoBehaviour
 
     void Start()
     {
+        sensorObj = GameObject.Find("GimbalManager/SensorData");
         //adjust layers for multiple camera
         //setLayersForMultiCamera ();
     }
@@ -2834,9 +2837,11 @@ public class ZEDManager : MonoBehaviour
         UpdateBodiesTracking(); // Update bt if actived
         UpdateMapping(); //Update mapping if activated
 		
-        
-		Debug.Log("Rotation " + zedOrientation.eulerAngles);
-		Debug.Log("Position " + zedPosition);
+        // CUSTOM CODE
+        sensorObj.transform.localPosition = zedPosition;
+        sensorObj.transform.localRotation = zedOrientation;
+		//Debug.Log("Rotation " + zedOrientation.eulerAngles);
+		//Debug.Log("Position " + zedPosition);
 
         /// If in Unity Editor, update the ZEDManager status list
 #if UNITY_EDITOR

@@ -61,12 +61,15 @@ namespace Robot
             totalRotationsLocalRef,
             normalizedTotalRotLocalRef;
 
+        private Quaternion
+            gimbalPlacement = Quaternion.Euler(0, -90, 0);
+
 
 
 
 
         //private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
-        private Quaternion rotationToRobot = Quaternion.AngleAxis(0, Vector3.forward);
+        private Quaternion rotationToRobot = Quaternion.AngleAxis(90, Vector3.forward); // Quaternion.AngleAxis(0, Vector3.forward); When placed facing robot opposite side use this.
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private Quaternion yOffsetRotation = Quaternion.identity;
         private float axisAngle = 0.0f;
@@ -144,14 +147,14 @@ namespace Robot
             
             Quaternion yOnlyCameraRotation = Quaternion.LookRotation(forwardHorizontal, Vector3.up);
             yOnlyCameraRotation = Quaternion.Inverse(yOnlyCameraRotation);
-            deltaControllerPosition = (yOnlyCameraRotation * currentControllerPosition) 
-                                      - (yOnlyCameraRotation * previousControllerPosition);
-            //deltaControllerPosition = Quaternion.Euler(0, 180, 0) * deltaControllerPosition;
+            deltaControllerPosition = gimbalPlacement *(yOnlyCameraRotation * currentControllerPosition) 
+                                      - gimbalPlacement * (yOnlyCameraRotation * previousControllerPosition);
+            //deltaControllerPosition = Quaternion.Euler(0, 90, 0) * deltaControllerPosition;
      
             currentControllerRotation = controllerPose.transform.rotation * xOffsetRotation  * rotationToRobot;
             
             deltaControllerRotation = Quaternion.Inverse(yOnlyCameraRotation*previousControllerRotation) * (yOnlyCameraRotation*currentControllerRotation); //Quaternion.Inverse(previousControllerRotation) * currentControllerRotation;
-          
+              
 
             if (!UIManager.PosX)
             {

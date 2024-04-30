@@ -92,7 +92,7 @@ namespace Robot
                 ChangeSprite(GimbalLockSprite, Controller_Enabled);
             }
             
-            UIPointer.SetActive(UIOpen && uiPoint);
+            UIPointer.SetActive(UIOpen);
             if (UIOpen)
             {
                 if (buttons.Length > 0)
@@ -110,13 +110,13 @@ namespace Robot
                     MoveOption(1);
                 }
 
-                if (!uiPoint) // TEMP for UI change while not having on VR headset
+                /*if (!uiPoint) // TEMP for UI change while not having on VR headset
                 {
                     if (press.GetStateDown(handType) || Input.GetKeyDown(KeyCode.C))
                     {
                         buttons[currentIndex].gameObject.GetComponent<Button>().onClick.Invoke();
                     }
-                }
+                }*/
             }
         }
 

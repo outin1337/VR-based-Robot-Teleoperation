@@ -111,13 +111,43 @@ public class RadialMenu : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < middleButtons.Length; i++)
+            int i;
+            if (radiusFromCenter.y > 0)
             {
-                Transform buttonTransform = middleButtons[i].transform;
-                Image img = buttonTransform.GetComponent<Image>();
-                ButtonInfo buttonInfo = buttonTransform.GetComponent<ButtonInfo>();
-                
+                i = 1;
             }
+            else
+            {
+                i = 0;
+            }
+            
+            Transform buttonTransform = middleButtons[i].transform;
+            Image img = buttonTransform.GetComponent<Image>();
+            ButtonInfo buttonInfo = buttonTransform.GetComponent<ButtonInfo>();
+            
+            
+            if (img.color == color_normal)
+            {
+                img.color = new Color(1f, 1f, 1f, 0.75f);
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (img.color == color_selected)
+                {
+                    img.color = color_highlighted;
+                    buttonInfo.active = false;
+                }
+                else
+                {
+                    img.color = color_selected;
+                    buttonInfo.active = true;
+                }
+                
+
+
+            }
+            else if (img.color != color_selected)
+                img.color = color_normal;
         }
         
     }

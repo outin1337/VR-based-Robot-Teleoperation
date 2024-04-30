@@ -21,6 +21,7 @@ public class GimbalNetwork : MonoBehaviour
     private List<XRDisplaySubsystem> displaySubsystems;
     private Thread receiveThread;
     private bool isReceiving = true;
+    private GameObject sensorData;
     
     public static string commandSend = ""; 
     public string serverIp = "158.39.162.249"; // Server IP address
@@ -29,6 +30,7 @@ public class GimbalNetwork : MonoBehaviour
 
     void Start()
     {
+        sensorData = GameObject.Find("GimbalManager/SensorData");
         displaySubsystems = new List<XRDisplaySubsystem>();
         SubsystemManager.GetInstances<XRDisplaySubsystem>(displaySubsystems);
         
@@ -61,14 +63,16 @@ public class GimbalNetwork : MonoBehaviour
 		if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
         {
             Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
-            // UNITY : Z is ROLL, X is pitch, Y is yaw
-            //String cmd_str = $"{{\"command\": \"rotate {(int) -temp.z} {(int) temp.x} {(int) -temp.y}\"}}";
-            String cmd_str = $"{{\"command\": \"rotate {0} {(int) -temp.x} {(int) -temp.y}\"}}";
-            SendCommand(cmd_str);
+            //UNITY = Gimbal : Z is ROLL, X is pitch, Y is yaw
+            //Unity = Sensor Y = yaw X = Pitch Z = Roll
+            
+            //RotateCmd(-temp.x, -temp.y, -temp.z);
+            RotateCmd(-temp.x, -temp.y, 0);
             //Debug.Log(temp.ToString());
             Debug.Log(startRotation);
             //Debug.Log(cmd_str);
             timeCounter = 0f;
+
         }
         
         isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);
@@ -128,6 +132,12 @@ public class GimbalNetwork : MonoBehaviour
     {
         startRotation = cam.transform.rotation.eulerAngles;
         Debug.Log("Startrotation" + startRotation);
+    }
+
+    private void RotateCmd(float x, float y, float z)
+    {
+        String cmd_str = $"{{\"command\": \"rotate {(int) z} {(int) x} {(int) y}\"}}";
+        SendCommand(cmd_str);
     }
 
     void OnDestroy()
