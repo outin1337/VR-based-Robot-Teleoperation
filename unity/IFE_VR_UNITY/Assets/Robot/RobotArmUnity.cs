@@ -62,14 +62,14 @@ namespace Robot
             normalizedTotalRotLocalRef;
 
         private Quaternion
-            gimbalPlacement = Quaternion.Euler(0, -90, 0);
+            gimbalPlacement = Quaternion.Euler(0, -45, 0); //gimbalPlacement = Quaternion.Euler(0, -90, 0);
 
 
 
 
 
         //private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
-        private Quaternion rotationToRobot = Quaternion.AngleAxis(90, Vector3.forward); // Quaternion.AngleAxis(0, Vector3.forward); When placed facing robot opposite side use this.
+        private Quaternion rotationToRobot = Quaternion.AngleAxis(45, Vector3.forward); // Quaternion.AngleAxis(90, Vector3.forward); When placed facing robot opposite side use this.
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private Quaternion yOffsetRotation = Quaternion.identity;
         private float axisAngle = 0.0f;

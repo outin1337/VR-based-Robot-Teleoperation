@@ -13,19 +13,19 @@ public class GimbalNetwork : MonoBehaviour
 {
     private TcpClient client;
     private NetworkStream stream;
-    private int port = 9999; // Server port
+    private int port = 9999;
     private float timeCounter = 0f;
     private bool isDeviceConnected;
-    private Vector3 startRotation;
-    private bool systemReady = false;
+    private Vector3 startRotation, previousRotation;
+    private float rotationThreshold = 1.8f;
     private List<XRDisplaySubsystem> displaySubsystems;
     private Thread receiveThread;
     private bool isReceiving = true;
     private GameObject sensorData;
-    
-    public static string commandSend = ""; 
-    public string serverIp = "158.39.162.249"; // Server IP address
-    public float delay = 0.002f; // 500 frequency
+
+    public static string commandSend = "";
+    public string serverIp = "158.39.162.249";
+    public float delay = 0.002f;
     public GameObject cam;
 
     void Start()
@@ -33,14 +33,10 @@ public class GimbalNetwork : MonoBehaviour
         sensorData = GameObject.Find("GimbalManager/SensorData");
         displaySubsystems = new List<XRDisplaySubsystem>();
         SubsystemManager.GetInstances<XRDisplaySubsystem>(displaySubsystems);
-        
         isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);
-        
         ConnectToServer();
-        //SendCommand("{\"command\": \"CALIBRATE\"}");
-
         startRotation = cam.transform.rotation.eulerAngles;
-        
+        previousRotation = startRotation;
         receiveThread = new Thread(ReceiveData);
         receiveThread.Start();
     }
@@ -48,35 +44,23 @@ public class GimbalNetwork : MonoBehaviour
     private void Update()
     {
         timeCounter += Time.deltaTime;
-
-        if (commandSend.Equals("CALIBRATE"))
+        if (commandSend == "CALIBRATE")
         {
             SendCommand("{\"command\": \"CALIBRATE\"}");
             commandSend = "";
-        } else if (commandSend.Equals("UPDATEROTATION"))
+        }
+        else if (commandSend == "UPDATEROTATION")
         {
             updateStartRotation();
-            //SendCommand("{\"command\": \"CALIBRATE\"}");
             commandSend = "";
         }
 
-		if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
+        if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
         {
-            Vector3 temp = cam.transform.rotation.eulerAngles - startRotation;
-            //UNITY = Gimbal : Z is ROLL, X is pitch, Y is yaw
-            //Unity = Sensor Y = yaw X = Pitch Z = Roll
-            
-            //RotateCmd(-temp.x, -temp.y, -temp.z);
-            RotateCmd(-temp.x, -temp.y, 0);
-            //Debug.Log(temp.ToString());
-            Debug.Log(startRotation);
-            //Debug.Log(cmd_str);
+            SendRotationDifferences();
             timeCounter = 0f;
-
         }
-        
         isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);
-
     }
 
     void ConnectToServer()
@@ -84,7 +68,6 @@ public class GimbalNetwork : MonoBehaviour
         client = new TcpClient();
         var result = client.BeginConnect(serverIp, port, null, null);
         var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(5));
-
         if (!success)
         {
             Debug.LogError("Connection to server timed out.");
@@ -96,12 +79,6 @@ public class GimbalNetwork : MonoBehaviour
             client.EndConnect(result);
             stream = client.GetStream();
             Debug.Log("Connected to server");
-            if (isDeviceConnected)
-            {
-                //updateStartRotation();
-                //systemReady = true;
-            }
-                
         }
         catch (Exception e)
         {
@@ -127,16 +104,43 @@ public class GimbalNetwork : MonoBehaviour
             Debug.LogError($"Error sending command to server: {e}");
         }
     }
-    
+
     public void updateStartRotation()
     {
         startRotation = cam.transform.rotation.eulerAngles;
-        Debug.Log("Startrotation" + startRotation);
+        Debug.Log("Startrotation updated: " + startRotation);
+    }
+
+    void SendRotationDifferences()
+    {
+        Vector3 currentRotation = cam.transform.rotation.eulerAngles;
+        Vector3 rotationDelta = currentRotation - previousRotation;
+        rotationDelta = AdjustRotationDelta(rotationDelta);
+        if (Mathf.Abs(rotationDelta.x) >= rotationThreshold ||
+            Mathf.Abs(rotationDelta.y) >= rotationThreshold ||
+            Mathf.Abs(rotationDelta.z) >= rotationThreshold)
+        {
+            RotateCmd(rotationDelta.x, rotationDelta.y, rotationDelta.z);
+            previousRotation = currentRotation;
+        }
+    }
+
+    Vector3 AdjustRotationDelta(Vector3 delta)
+    {
+        if (delta.x > 180) delta.x -= 360;
+        else if (delta.x < -180) delta.x += 360;
+        if (delta.y > 180) delta.y -= 360;
+        else if (delta.y < -180) delta.y += 360;
+        if (delta.z > 180) delta.z -= 360;
+        else if (delta.z < -180) delta.z += 360;
+        return delta;
     }
 
     private void RotateCmd(float x, float y, float z)
     {
-        String cmd_str = $"{{\"command\": \"rotate {(int) z} {(int) x} {(int) y}\"}}";
+        //UNITY = Gimbal : Z is ROLL, X is pitch, Y is yaw
+        //Unity = Sensor Y = yaw X = Pitch Z = Roll
+        string cmd_str = $"{{\"command\": \"rotate {(int)z} {(int)x} {(int)y}\"}}";
         SendCommand(cmd_str);
     }
 
@@ -147,7 +151,7 @@ public class GimbalNetwork : MonoBehaviour
         if (client != null) client.Close();
         Debug.Log("Disconnected from server");
     }
-    
+
     private void ReceiveData()
     {
         try
@@ -158,7 +162,6 @@ public class GimbalNetwork : MonoBehaviour
                 int bytesRead = stream.Read(bytesToRead, 0, client.ReceiveBufferSize);
                 string response = Encoding.ASCII.GetString(bytesToRead, 0, bytesRead);
                 Debug.Log($"Server response: {response}");
-                // Process received data here
             }
         }
         catch (Exception e)

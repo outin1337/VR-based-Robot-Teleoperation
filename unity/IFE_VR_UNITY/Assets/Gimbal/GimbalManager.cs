@@ -77,7 +77,7 @@ namespace Robot
             float cameraYaw = MainCamera.transform.eulerAngles.y;
             if (distance != 0f)
             {
-                Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0, Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
+                //Vector3 forwardDirection = new Vector3(Mathf.Sin(Mathf.Deg2Rad * cameraYaw), 0, Mathf.Cos(Mathf.Deg2Rad * cameraYaw));
                 //obj.transform.position = MainCamera.transform.position - offset + forwardDirection * distance;
                 obj.transform.position = MainCamera.transform.position + MainCamera.transform.forward * distance;
                 obj.transform.rotation = MainCamera.transform.rotation;

@@ -1,6 +1,5 @@
 def moveHome():
     movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
-    textmsg("home")
 end
 
 def q_from_input_float_registers(register_index):
@@ -27,8 +26,8 @@ thread servo_thread():
                 syncPc()
             end
             dt = 0.002 #1/500
-            lh_time = 0.05
-            g = 500
+            lh_time = 0.1 # [0.03,0.2]
+            g = 2000  #  [100,2000]
         else:
             textmsg("no close solution found")
             q = get_actual_joint_positions()
