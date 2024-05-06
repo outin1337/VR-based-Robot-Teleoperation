@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Diagnostics;
+using Valve.VR;
 using Debug = UnityEngine.Debug;
 
 
@@ -38,6 +39,8 @@ namespace Robot
 
         async void Start()
         {
+
+            SteamVR.settings.lockPhysicsUpdateRateToRenderFrequency = false;
             
             stopwatch= new Stopwatch();
 
