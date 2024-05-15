@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using Robot;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.XR;
 using System.Threading;
@@ -16,8 +15,9 @@ public class GimbalNetwork : MonoBehaviour
     private int port = 9999;
     private float timeCounter = 0f;
     private bool isDeviceConnected;
-    private Vector3 startRotation, previousRotation;
+    private Vector3 startRotation, previousRotation, lockedRotation;
     private float rotationThreshold = 1.8f;
+    private float scalingFactor = 10f; // Scaling factor to amplify rotation values
     private List<XRDisplaySubsystem> displaySubsystems;
     private Thread receiveThread;
     private bool isReceiving = true;
@@ -37,6 +37,7 @@ public class GimbalNetwork : MonoBehaviour
         ConnectToServer();
         startRotation = cam.transform.rotation.eulerAngles;
         previousRotation = startRotation;
+        lockedRotation = startRotation;
         receiveThread = new Thread(ReceiveData);
         receiveThread.Start();
     }
@@ -55,10 +56,18 @@ public class GimbalNetwork : MonoBehaviour
             commandSend = "";
         }
 
-        if (timeCounter >= delay && !GimbalManager.isGimbalLocked)
+        if (timeCounter >= delay)
         {
-            SendRotationDifferences();
-            timeCounter = 0f;
+            if (!GimbalManager.isGimbalLocked)
+            {
+                SendRotationDifferences();
+                timeCounter = 0f;
+            }
+            else
+            {
+                lockedRotation = cam.transform.rotation.eulerAngles;
+                previousRotation = lockedRotation;
+            }
         }
         isDeviceConnected = displaySubsystems.Any(subsystem => subsystem.running && subsystem.displayOpaque);
     }
@@ -115,7 +124,7 @@ public class GimbalNetwork : MonoBehaviour
     {
         Vector3 currentRotation = cam.transform.rotation.eulerAngles;
         Vector3 rotationDelta = currentRotation - previousRotation;
-        rotationDelta = AdjustRotationDelta(rotationDelta);
+        rotationDelta = AdjustRotationDelta(rotationDelta) * scalingFactor; // Apply scaling factor
         if (Mathf.Abs(rotationDelta.x) >= rotationThreshold ||
             Mathf.Abs(rotationDelta.y) >= rotationThreshold ||
             Mathf.Abs(rotationDelta.z) >= rotationThreshold)
@@ -138,8 +147,6 @@ public class GimbalNetwork : MonoBehaviour
 
     private void RotateCmd(float x, float y, float z)
     {
-        //UNITY = Gimbal : Z is ROLL, X is pitch, Y is yaw
-        //Unity = Sensor Y = yaw X = Pitch Z = Roll
         string cmd_str = $"{{\"command\": \"rotate {(int)z} {(int)x} {(int)y}\"}}";
         SendCommand(cmd_str);
     }

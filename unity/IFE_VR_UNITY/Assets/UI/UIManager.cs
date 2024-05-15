@@ -92,7 +92,8 @@ namespace Robot
                 ChangeSprite(GimbalLockSprite, Controller_Enabled);
             }
             
-            UIPointer.SetActive(UIOpen);
+            UIPointer.SetActive(UIOpen
+            );
             if (UIOpen)
             {
                 if (buttons.Length > 0)
