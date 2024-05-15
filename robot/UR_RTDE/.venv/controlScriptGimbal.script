@@ -1,0 +1,110 @@
+def moveHome():
+    movej([-1.57, -1.57, -1.57, -1.57, 1.57, 0])
+end
+
+def q_from_input_float_registers(register_index):
+    q = [0, 0, 0, 0, 0, 0]
+    q[0] = read_input_float_register(register_index + 0)
+    q[1] = read_input_float_register(register_index + 1)
+    q[2] = read_input_float_register(register_index + 2)
+    q[3] = read_input_float_register(register_index + 3)
+    q[4] = read_input_float_register(register_index + 4)
+    q[5] = read_input_float_register(register_index + 5)
+    return q
+  end
+
+thread servo_thread():
+    while (True):
+        enter_critical
+        if (get_inverse_kin_has_solution(a)):
+            c = get_actual_tcp_pose()
+            joint_pos = get_inverse_kin(a)
+            if ( 0.1 < pose_dist(c, a) or not is_within_safety_limits(a)):
+                skip_pkt_nmbr = pkt_nmbr
+                textmsg(skip_pkt_nmbr)
+                write_output_integer_register(25,1)
+                moveHome()
+                a = get_actual_tcp_pose()
+                joint_pos = get_actual_joint_positions()
+                syncPc()
+            end
+            dt = 0.011 #1/500
+            lh_time = 0.1 # [0.03,0.2]
+            g = 300  #  [100,2000]
+            desync_cnt = 0
+            skip_pkt_nmbr = -1
+        else:
+            textmsg("no close solution found")
+            desync_cnt = desync_cnt +1
+            if (desync_cnt > 50):
+                desync_cnt = 0
+                skip_pkt_nmbr = pkt_nmbr
+                textmsg(skip_pkt_nmbr)
+                write_output_integer_register(25,1)
+                moveHome()
+                a = get_actual_tcp_pose()
+                joint_pos = get_actual_joint_positions()
+                syncPc()
+            end
+        end
+        exit_critical
+        servoj(joint_pos, t=dt, lookahead_time=lh_time, gain=g)
+    end
+end
+
+
+moveHome()
+zero_ftsensor()
+
+
+global a = get_actual_tcp_pose()
+global resetToHome = False
+global desync_cnt = 0
+global pkt_nmbr = 0
+global skip_pkt_nmbr = -1
+old = 0
+grp_move = 0
+
+write_output_integer_register(25, 0)
+
+def syncPc():
+    #Robot sends ready signal
+    write_output_integer_register(24, 1)
+    while(True):
+        #Read if PC processed ready signal
+        if (read_input_integer_register(24) == 1):
+            #Reset ready signal
+            write_output_integer_register(24,0)
+            write_output_integer_register(25,0)
+            break
+        end
+        sync()
+    end
+end
+
+syncPc()
+
+global servo_thrd = run servo_thread()
+
+
+while(True):
+    b = q_from_input_float_registers(24)
+    stop = read_input_float_register(46)
+    pkt_nmbr = read_input_float_register(47)
+    if (stop == 1):
+        kill servo_thrd
+        kill grp_thrd
+        break
+    end
+    if (old != pkt_nmbr and pkt_nmbr != skip_pkt_nmbr):
+        a[0] = a[0] + b[0]
+        a[1] = a[1] + b[2]
+        a[2] = a[2] + b[1] 
+        a[3] = b[3]
+        a[4] = b[4]
+        a[5] = b[5]
+    end
+    old = pkt_nmbr
+    sync()
+end
+halt

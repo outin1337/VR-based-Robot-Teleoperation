@@ -28,7 +28,7 @@ namespace Robot
         private SteamVR_Action_Boolean grabPinchAction = SteamVR_Actions.default_GrabPinch;
         private SteamVR_Action_Single squeezeGrabPinchAction = SteamVR_Actions.default_Squeeze;
         private SteamVR_Action_Boolean teleportAction = SteamVR_Actions.default_Teleport;
-        private SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_GrabGrip;
+        private SteamVR_Action_Boolean grabGrip = SteamVR_Actions.default_Teleport;
         private SteamVR_Action_Vibration forceVibration = SteamVR_Actions.default_Haptic;
         
         public RobotArmUnityGimbal(GameObject vrControllerObject, GameObject vrCamera, GameObject lockedVrCameraCopy, GameObject controller)
@@ -74,7 +74,7 @@ namespace Robot
 
 
         //private Quaternion rotationToRobot = Quaternion.AngleAxis(180, Vector3.forward);
-        private Quaternion rotationToRobot = Quaternion.Euler(90, 0, 0); //Quaternion.AngleAxis(0, Vector3.forward); // Quaternion.AngleAxis(90, Vector3.forward); When placed facing robot opposite side use this.
+        private Quaternion rotationToRobot = Quaternion.Euler(0, 180, 0) * Quaternion.Euler(-90,0,0); //Quaternion.AngleAxis(0, Vector3.forward); // Quaternion.AngleAxis(90, Vector3.forward); When placed facing robot opposite side use this.
         private Quaternion xOffsetRotation = Quaternion.Euler(-50, 0, 0);
         private Quaternion yOffsetRotation = Quaternion.identity;
         private float axisAngle = 0.0f;

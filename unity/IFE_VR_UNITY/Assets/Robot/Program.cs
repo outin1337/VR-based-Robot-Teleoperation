@@ -50,7 +50,7 @@ namespace Robot
             
             Ur3.OnSockClosed += Ur3_OnSockClosed;
 
-            isConnected = await Ur3.ConnectAsync("10.1.1.5", 2); //158.39.162.177 .... 10.1.1.5
+            isConnected = await Ur3.ConnectAsync("158.39.162.151", 2); //158.39.162.177 .... 10.1.1.5 ..... 158.39.162.151
             if (isConnected) {
                 Debug.Log("Successfully connected.");
             } else {
