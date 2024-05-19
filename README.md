@@ -4,6 +4,7 @@ Github repo for teleoperated robot arm. Currently, no documentation for the code
 - Raspberry pi 4
 - UR3e & UR16e
 - Intel Realsense D435i
+- ZED 2
 - 3 stepper motors
 - Custom Gimbal
 - HTC VIVE PRO 2 (We are currently testing on 1)
@@ -13,6 +14,7 @@ Github repo for teleoperated robot arm. Currently, no documentation for the code
 **Do not edit Unity without using version 2021.3.18**
 - SteamVR
 - Intel Realsense Unity
+- ZED SDK
 - UR_RTDE (use Python 3.10)
 ## Libraries for Raspberry pi
 Nothing to add for now
@@ -25,4 +27,3 @@ We use URSim to test the robot movement before we test it on the real robot. Thi
 
 We include dependencies currently to keep testing of the system easier.
 ##
-Detailed README is coming later
