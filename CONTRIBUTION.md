@@ -6,4 +6,4 @@
 - [Tor Borge](https://github.com/Bollastew)
 - [Torstein Mo Kirkeluten](https://github.com/ToxicPotato)
 - [Emre Andreas Yurt](https://github.com/Readablename)
-- [Fornavn Etternavn](https://github.com/brukernavn)
+- [Fredrik Dahl](https://github.com/fredrida)
