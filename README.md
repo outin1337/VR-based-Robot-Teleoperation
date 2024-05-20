@@ -1,4 +1,4 @@
-# IFE VR Robot!
+# VR-based-Robot-Teleoperation!
 Github repo for teleoperated robot arm. Currently, no documentation for the code exists
 ## Hardware
 - Raspberry pi 4
